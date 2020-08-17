@@ -1,0 +1,13 @@
+steps:
+# Run tests
+- name: 'microsoft/dotnet:sdk'
+  entrypoint: 'dotnet'
+  args: ['test', '']
+# Build app
+- name: 'microsoft/dotnet:sdk'
+  entrypoint: 'dotnet'
+  args: ['build']
+# Run App
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args: ['app', 'deploy']
