@@ -1,0 +1,5 @@
+steps:
+# Run tests
+- name: 'microsoft/dotnet:sdk'
+  entrypoint: 'dotnet'
+  args: ['test', '']
