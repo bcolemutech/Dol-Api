@@ -2,12 +2,12 @@ steps:
 # Run tests
 - name: 'microsoft/dotnet:sdk'
   entrypoint: 'dotnet'
-  args: ['test', '']
+  args: ['test', '/DolApiTest/DolApiTest.csproj']
 # Build app
 - name: 'microsoft/dotnet:sdk'
   entrypoint: 'dotnet'
-  args: ['build']
+  args: ['build', '/DolApi/DolApi.csproj']
 # Run App
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
-  args: ['app', 'deploy']
+  args: ['app', 'deploy', '/DolApi/app.yaml']
