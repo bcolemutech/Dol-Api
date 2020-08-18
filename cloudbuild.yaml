@@ -1,10 +1,10 @@
 steps:
 # Run tests
-- name: 'microsoft/dotnet:sdk'
+- name: 'mcr.microsoft.com/dotnet/core/sdk:3.1'
   entrypoint: 'dotnet'
   args: ['test']
 # Publish app
-- name: 'microsoft/dotnet:sdk'
+- name: 'mcr.microsoft.com/dotnet/core/sdk:3.1'
   entrypoint: 'dotnet'
   args: ['publish']
 # Run App
