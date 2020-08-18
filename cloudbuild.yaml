@@ -3,11 +3,11 @@ steps:
 - name: 'microsoft/dotnet:sdk'
   entrypoint: 'dotnet'
   args: ['test']
-# Build app
+# Publish app
 - name: 'microsoft/dotnet:sdk'
   entrypoint: 'dotnet'
-  args: ['build']
+  args: ['publish']
 # Run App
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
-  args: ['app', 'deploy', 'DolApi/app.yaml']
+  args: ['app', 'deploy', './DolApi/bin/Debug/netcoreapp3.1/publish/app.yaml']
