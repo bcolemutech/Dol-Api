@@ -1,5 +1,4 @@
 using AspNetCore.Firebase.Authentication.Extensions;
-using FirebaseAdmin;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +19,6 @@ namespace DolApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            FirebaseApp.Create();
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddFirebaseAuthentication(Configuration["FirebaseAuthentication:Issuer"],
                 Configuration["FirebaseAuthentication:Audience"]);
