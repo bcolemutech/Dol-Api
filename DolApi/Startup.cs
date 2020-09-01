@@ -1,4 +1,5 @@
 using AspNetCore.Firebase.Authentication.Extensions;
+using DolApi.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,16 +16,23 @@ namespace DolApi
         }
 
         private IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
+        
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddFirebaseAuthentication(Configuration["FirebaseAuthentication:Issuer"],
                 Configuration["FirebaseAuthentication:Audience"]);
-        }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy => policy.RequireClaim("Authority", "1"));
+                options.AddPolicy("Testers", policy => policy.RequireClaim("Authority", "1", "2"));
+                options.AddPolicy("Players", policy => policy.RequireClaim("Authority", "1", "2", "3"));
+            });
+            
+            services.AddSingleton<IUserController, UserController>();
+        }
+        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
