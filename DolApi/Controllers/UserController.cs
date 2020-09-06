@@ -23,7 +23,7 @@ namespace DolApi.Controllers
             bool newExists;
             try
             {
-                userRecord = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync("email");
+                userRecord = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(playerRequest.Email);
                 newExists = false;
                 Console.WriteLine($"Player ID is {userRecord.Uid}");
             }
