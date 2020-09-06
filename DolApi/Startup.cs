@@ -52,10 +52,7 @@ namespace DolApi
 
             app.UseMvc();
             
-            FirebaseApp.Create(new AppOptions()
-            {
-                Credential = GoogleCredential.GetApplicationDefault(),
-            });
+            FirebaseApp.Create();
         }
     }
 }
