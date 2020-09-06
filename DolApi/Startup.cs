@@ -25,9 +25,9 @@ namespace DolApi
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("Admin", policy => policy.RequireClaim("Authority", "1"));
-                options.AddPolicy("Testers", policy => policy.RequireClaim("Authority", "1", "2"));
-                options.AddPolicy("Players", policy => policy.RequireClaim("Authority", "1", "2", "3"));
+                options.AddPolicy("Admin", policy => policy.RequireClaim("Authority", "0"));
+                options.AddPolicy("Testers", policy => policy.RequireClaim("Authority", "0", "1"));
+                options.AddPolicy("Players", policy => policy.RequireClaim("Authority", "0", "1", "2"));
             });
             
             services.AddSingleton<IUserController, UserController>();
