@@ -1,5 +1,7 @@
 using AspNetCore.Firebase.Authentication.Extensions;
 using DolApi.Controllers;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +51,11 @@ namespace DolApi
             app.UseAuthorization();
 
             app.UseMvc();
+            
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.GetApplicationDefault(),
+            });
         }
     }
 }
