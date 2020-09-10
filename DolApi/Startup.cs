@@ -1,3 +1,4 @@
+using System;
 using AspNetCore.Firebase.Authentication.Extensions;
 using DolApi.Controllers;
 using FirebaseAdmin;
@@ -21,6 +22,10 @@ namespace DolApi
         
         public void ConfigureServices(IServiceCollection services)
         {
+            var app = FirebaseApp.Create();
+            
+            Console.WriteLine($"My app name is {app.Name}!");
+            
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddFirebaseAuthentication(Configuration["FirebaseAuthentication:Issuer"],
                 Configuration["FirebaseAuthentication:Audience"]);
@@ -51,8 +56,6 @@ namespace DolApi
             app.UseAuthorization();
 
             app.UseMvc();
-            
-            FirebaseApp.Create();
         }
     }
 }
