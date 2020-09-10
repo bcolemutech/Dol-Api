@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,11 @@ namespace DolApi.Controllers
             bool newExists;
             try
             {
-                userRecord = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(playerRequest.Email);
+                var app = FirebaseApp.DefaultInstance;
+                Console.WriteLine($"Authorizing admin for {app.Options.ProjectId}");
+                var auth = FirebaseAuth.GetAuth(FirebaseApp.DefaultInstance);
+                
+                userRecord = await auth.GetUserByEmailAsync(playerRequest.Email);
                 newExists = false;
                 Console.WriteLine($"Player ID is {userRecord.Uid}");
             }
