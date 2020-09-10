@@ -12,7 +12,7 @@ namespace DolApi.Controllers
     {
     }
 
-    [Authorize]
+    [Authorize(Policy = "Admin")]
     [Route("[controller]")]
     public class UserController : IUserController
     {
