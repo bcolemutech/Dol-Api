@@ -22,7 +22,13 @@ namespace DolApi
         
         public void ConfigureServices(IServiceCollection services)
         {
-            var app = FirebaseApp.Create();
+            AppOptions options = new AppOptions
+            {
+                Credential = GoogleCredential.GetApplicationDefault(),
+                ProjectId = "dominion-of-light"
+            };
+            
+            var app = FirebaseApp.Create(options);
 
             Console.WriteLine($"My app ID is {app.Options.ProjectId}!");
             
