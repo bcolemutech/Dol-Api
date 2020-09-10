@@ -23,8 +23,8 @@ namespace DolApi
         public void ConfigureServices(IServiceCollection services)
         {
             var app = FirebaseApp.Create();
-            
-            Console.WriteLine($"My app name is {app.Name}!");
+
+            Console.WriteLine($"My app ID is {app.Options.ProjectId}!");
             
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddFirebaseAuthentication(Configuration["FirebaseAuthentication:Issuer"],
