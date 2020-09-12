@@ -1,6 +1,7 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using AspNetCore.Firebase.Authentication.Extensions;
-using DolApi.Controllers;
+using DolApi.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace DolApi
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -32,18 +34,18 @@ namespace DolApi
 
             Console.WriteLine($"My app ID is {app.Options.ProjectId}!");
             
-            services.AddMvc(options => options.EnableEndpointRouting = false);
+            services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddFirebaseAuthentication(Configuration["FirebaseAuthentication:Issuer"],
                 Configuration["FirebaseAuthentication:Audience"]);
 
-            services.AddAuthorization(options =>
+            services.AddAuthorization(option =>
             {
-                options.AddPolicy("Admin", policy => policy.RequireClaim("Authority", "0"));
-                options.AddPolicy("Testers", policy => policy.RequireClaim("Authority", "0", "1"));
-                options.AddPolicy("Players", policy => policy.RequireClaim("Authority", "0", "1", "2"));
+                option.AddPolicy("Admin", policy => policy.RequireClaim("Authority", "0"));
+                option.AddPolicy("Testers", policy => policy.RequireClaim("Authority", "0", "1"));
+                option.AddPolicy("Players", policy => policy.RequireClaim("Authority", "0", "1", "2"));
             });
-            
-            services.AddSingleton<IUserController, UserController>();
+
+            services.AddSingleton<IAdminService, AdminService>();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
