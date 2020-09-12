@@ -1,76 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FirebaseAdmin;
+using DolApi.POCOs;
+using DolApi.Services;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DolApi.Controllers
 {
-    public interface IUserController
-    {
-    }
-
     [Authorize(Policy = "Admin")]
     [Route("[controller]")]
-    public class UserController : IUserController
+    public class UserController
     {
+        private readonly IAdminService _admin;
+        public UserController(IAdminService adminService)
+        {
+            _admin = adminService;
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]PlayerRequest playerRequest)
         {
             Console.WriteLine($"Player email = {playerRequest.Email}");
-            UserRecord userRecord = null;
+            var userId = "";
             bool newExists;
             try
             {
-                var app = FirebaseApp.DefaultInstance;
-                Console.WriteLine($"Authorizing admin for {app.Options.ProjectId}");
-                var auth = FirebaseAuth.GetAuth(FirebaseApp.DefaultInstance);
-                
-                userRecord = await auth.GetUserByEmailAsync(playerRequest.Email);
+                userId = _admin.GetUserByEmailAsync(playerRequest.Email);
                 newExists = false;
-                Console.WriteLine($"Player ID is {userRecord.Uid}");
+                Console.WriteLine("Player found");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                if (e is FirebaseAuthException)
-                {
-                    Console.WriteLine($"Player does not exist");
-                    newExists = true;
-                }
-                else
-                {
-                    Console.WriteLine(e.Message);
-                    throw;
-                }
+                newExists = true;
             }
 
             if (newExists)
             {
+                Console.WriteLine("Creating new player");
                 var user = new UserRecordArgs
                 {
                     Email = playerRequest.Email,
                     Password = Guid.NewGuid().ToString(),
                     Disabled = false
                 };
-                userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(user);
-                Console.WriteLine($"New player ID is {userRecord.Uid}");
+                userId = _admin.CreateUserAsync(user);
+                Console.WriteLine("New player created");
             }
-            Console.WriteLine($"Authority set to {playerRequest.Authority}");
+            Console.WriteLine($"Setting authority to {playerRequest.Authority}");
             var claims = new Dictionary<string, object>
             {
                 { "Authority", playerRequest.Authority },
             };
-            await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(userRecord.Uid, claims);
+            await _admin.SetCustomUserClaimsAsync(userId, claims);
 
-            return new CreatedResult("", userRecord);
-        }
-        
-        public class PlayerRequest
-        {
-            public string Email { get; set; }
-            public string Authority { get; set; }
+            return new OkResult();
         }
     }
 }
