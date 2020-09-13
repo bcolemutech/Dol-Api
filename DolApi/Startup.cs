@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using AspNetCore.Firebase.Authentication.Extensions;
+using DolApi.Repositories;
 using DolApi.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
@@ -44,8 +45,11 @@ namespace DolApi
                 option.AddPolicy("Testers", policy => policy.RequireClaim("Authority", "0", "1"));
                 option.AddPolicy("Players", policy => policy.RequireClaim("Authority", "0", "1", "2"));
             });
+            
+            services.AddHttpContextAccessor();
 
             services.AddSingleton<IAdminService, AdminService>();
+            services.AddSingleton<ICharacterRepo, CharacterRepo>();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
