@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DolApi.POCOs;
+using DolApi.Repositories;
 using DolApi.Services;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -14,13 +15,16 @@ namespace DolApi.Controllers
     public class UserController
     {
         private readonly IAdminService _admin;
-        public UserController(IAdminService adminService)
+        private readonly IPlayerRepo _playerRepo;
+
+        public UserController(IAdminService adminService, IPlayerRepo playerRepo)
         {
             _admin = adminService;
+            _playerRepo = playerRepo;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]PlayerRequest playerRequest)
+        public async Task<IActionResult> Post([FromBody] PlayerRequest playerRequest)
         {
             Console.WriteLine($"Player email = {playerRequest.Email}");
             var userId = "";
@@ -46,12 +50,14 @@ namespace DolApi.Controllers
                     Disabled = false
                 };
                 userId = _admin.CreateUserAsync(user);
+                _playerRepo.Add(playerRequest.Email);
                 Console.WriteLine("New player created");
             }
+
             Console.WriteLine($"Setting authority to {playerRequest.Authority}");
             var claims = new Dictionary<string, object>
             {
-                { "Authority", playerRequest.Authority },
+                {"Authority", playerRequest.Authority},
             };
             await _admin.SetCustomUserClaimsAsync(userId, claims);
 
