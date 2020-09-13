@@ -1,9 +1,7 @@
-﻿using DolApi.POCOs;
+﻿using System.Threading.Tasks;
 using DolApi.Repositories;
-using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DolApi.Controllers
@@ -22,33 +20,33 @@ namespace DolApi.Controllers
         }
 
         [HttpPut]
-        public IActionResult Put(string name)
+        public async Task<IActionResult> Put(string name)
         {
-            var character = _characterRepo.Add(_username, name);
+            var character = await _characterRepo.Add(_username, name);
 
             return new CreatedResult($"/Character/{character.Name}", character);
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var characters = _characterRepo.RetrieveAll(_username);
+            var characters = await _characterRepo.RetrieveAll(_username);
             
             return new OkObjectResult(characters);
         }
 
         [HttpGet]
-        public IActionResult Get(string name)
+        public async Task<IActionResult> Get(string name)
         {
-            var character = _characterRepo.Retrieve(_username, name);
+            var character = await _characterRepo.Retrieve(_username, name);
             
             return new OkObjectResult(character);
         }
 
         [HttpDelete]
-        public IActionResult Delete(string name)
+        public async Task<IActionResult> Delete(string name)
         {
-            _characterRepo.Remove(_username, name);
+            await _characterRepo.Remove(_username, name);
             
             return new NoContentResult();
         }

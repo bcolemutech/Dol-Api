@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DolApi.Services;
 using Google.Cloud.Firestore;
@@ -11,6 +12,7 @@ namespace DolApi.Repositories
         Task Add(string userName);
     }
 
+    [ExcludeFromCodeCoverage]
     public class PlayerRepo : IPlayerRepo
     {
         private const string Players = "players";
@@ -27,7 +29,7 @@ namespace DolApi.Repositories
             {
                 { "UserName", userName }
             };
-            await docRef.SetAsync(user);
+            await docRef.SetAsync(user, SetOptions.MergeAll);
         }
     }
 }
