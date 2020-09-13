@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using DolApi.Controllers;
 using DolApi.POCOs;
@@ -20,7 +21,7 @@ namespace DolApiTest.Controllers
         {
             var accessor = Substitute.For<IHttpContextAccessor>();
 
-            accessor.HttpContext.User.Identity.Name.Returns("test@test.com");
+            accessor.HttpContext.User.Claims.Returns(new[] {new Claim("email", "test@test.com")});
             
             _characterRepo = Substitute.For<ICharacterRepo>();
 
