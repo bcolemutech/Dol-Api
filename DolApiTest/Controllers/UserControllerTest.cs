@@ -46,7 +46,7 @@ namespace DolApiTest.Controllers
             _adminService.Received(1).CreateUserAsync(Arg.Is<UserRecordArgs>(args =>
                 args.Email == "test@test.com" && !string.IsNullOrEmpty(args.Password)));
 
-            _playerRepo.Received(1).Add("test@test.com");
+            _playerRepo.Received(1).Add("1234");
 
             var claims = new Dictionary<string, object>(new[] {new KeyValuePair<string, object>("Authority", "0")});
 

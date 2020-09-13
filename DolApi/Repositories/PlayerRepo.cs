@@ -10,7 +10,7 @@ namespace DolApi.Repositories
 {
     public interface IPlayerRepo
     {
-        Task Add(string userName);
+        Task Add(string userId);
     }
 
     [ExcludeFromCodeCoverage]
@@ -23,12 +23,12 @@ namespace DolApi.Repositories
             _db = FirestoreDb.Create(configuration["PlayerId"]);
         }
 
-        public async Task Add(string userName)
+        public async Task Add(string userId)
         {
-            var docRef = _db.Collection(Players).Document(userName.ToLower());
+            var docRef = _db.Collection(Players).Document(userId);
             var user = new Dictionary<string, object>
             {
-                { "UserName", userName }
+                { "UserId", userId }
             };
             var result = await docRef.SetAsync(user, SetOptions.MergeAll);
             

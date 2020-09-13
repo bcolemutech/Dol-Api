@@ -50,7 +50,7 @@ namespace DolApi.Controllers
                     Disabled = false
                 };
                 userId = _admin.CreateUserAsync(user);
-                await _playerRepo.Add(playerRequest.Email);
+                await _playerRepo.Add(userId);
                 Console.WriteLine("New player created");
             }
 

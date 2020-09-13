@@ -14,24 +14,20 @@ namespace DolApi.Controllers
     public class CharacterController
     {
         private readonly ICharacterRepo _characterRepo;
-        private readonly string _username;
+        private readonly string _userId;
 
         public CharacterController(IHttpContextAccessor httpContextAccessor, ICharacterRepo characterRepo)
         {
             _characterRepo = characterRepo;
             var user = httpContextAccessor.HttpContext.User;
-            Console.WriteLine("CLAIMS!!!");
-            foreach (var claim in user.Claims)
-            {
-                Console.WriteLine($"{claim.Type} -> {claim.Value}");
-            }
-            _username = user.Claims.First(c => c.Type == "email").Value;
+
+            _userId = user.Claims.First(c => c.Type == "user_id").Value;
         }
 
         [HttpPut]
         public async Task<IActionResult> Put(string name)
         {
-            var character = await _characterRepo.Add(_username, name);
+            var character = await _characterRepo.Add(_userId, name);
 
             return new CreatedResult($"/Character/{character.Name}", character);
         }
@@ -39,7 +35,7 @@ namespace DolApi.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var characters = await _characterRepo.RetrieveAll(_username);
+            var characters = await _characterRepo.RetrieveAll(_userId);
             
             return new OkObjectResult(characters);
         }
@@ -47,7 +43,7 @@ namespace DolApi.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(string name)
         {
-            var character = await _characterRepo.Retrieve(_username, name);
+            var character = await _characterRepo.Retrieve(_userId, name);
             
             return new OkObjectResult(character);
         }
@@ -55,7 +51,7 @@ namespace DolApi.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(string name)
         {
-            await _characterRepo.Remove(_username, name);
+            await _characterRepo.Remove(_userId, name);
             
             return new NoContentResult();
         }
