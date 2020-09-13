@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Text.Json;
+using System.Threading.Tasks;
 using DolApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +18,7 @@ namespace DolApi.Controllers
         public CharacterController(IHttpContextAccessor httpContextAccessor, ICharacterRepo characterRepo)
         {
             _characterRepo = characterRepo;
+            Console.WriteLine(JsonSerializer.Serialize(httpContextAccessor.HttpContext.User));
             _username = httpContextAccessor.HttpContext.User.Identity.Name;
         }
 
