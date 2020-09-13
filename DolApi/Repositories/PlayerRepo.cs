@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DolApi.Services;
@@ -29,7 +30,9 @@ namespace DolApi.Repositories
             {
                 { "UserName", userName }
             };
-            await docRef.SetAsync(user, SetOptions.MergeAll);
+            var result = await docRef.SetAsync(user, SetOptions.MergeAll);
+            
+            Console.WriteLine($"New Player doc added at {result.UpdateTime}");
         }
     }
 }
