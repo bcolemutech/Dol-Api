@@ -20,13 +20,7 @@ namespace DolApi.Controllers
         {
             _characterRepo = characterRepo;
             var user = httpContextAccessor.HttpContext.User;
-            Console.WriteLine(
-                $"Claims count {user.Claims.Count()}|ID count {user.Identities.Count()}| name: {user.Identity.Name} - Auth {user.Identity.IsAuthenticated} - {user.Identity.AuthenticationType}");
-            if (user.Identities.Count() > 1)
-            {
-                Console.WriteLine(JsonSerializer.Serialize(user.Identities));
-            }
-            _username = httpContextAccessor.HttpContext.User.Identity.Name;
+            _username = user.Claims.First(c => c.Type == "email").Value;
         }
 
         [HttpPut]
