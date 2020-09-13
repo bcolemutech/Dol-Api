@@ -20,11 +20,16 @@ namespace DolApi.Controllers
         {
             _characterRepo = characterRepo;
             var user = httpContextAccessor.HttpContext.User;
-
+            Console.WriteLine("CLAIMS!!!");
+            foreach (var claim in user.Claims)
+            {
+                Console.WriteLine($"{claim.Type} -> {claim.Value}");
+            }
             _userId = user.Claims.First(c => c.Type == "user_id").Value;
         }
 
         [HttpPut]
+        [Route("{name:string}")]
         public async Task<IActionResult> Put(string name)
         {
             var character = await _characterRepo.Add(_userId, name);
@@ -41,6 +46,7 @@ namespace DolApi.Controllers
         }
 
         [HttpGet]
+        [Route("{name:string}")]
         public async Task<IActionResult> Get(string name)
         {
             var character = await _characterRepo.Retrieve(_userId, name);
@@ -49,6 +55,7 @@ namespace DolApi.Controllers
         }
 
         [HttpDelete]
+        [Route("{name:string}")]
         public async Task<IActionResult> Delete(string name)
         {
             await _characterRepo.Remove(_userId, name);

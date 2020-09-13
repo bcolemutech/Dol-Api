@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace DolApi.Repositories
 
         public async Task<Character> Add(string user, string name)
         {
+            Console.WriteLine($"Adding character {name} to player {user}");
             var docRef = _db.Collection(Players).Document(user).Collection(Characters).Document($"{name.ToLower()}:");
             var character = new Character {Name = name};
             await docRef.SetAsync(character, SetOptions.MergeAll);
