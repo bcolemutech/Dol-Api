@@ -20,6 +20,11 @@ namespace DolApi.Controllers
         {
             _characterRepo = characterRepo;
             var user = httpContextAccessor.HttpContext.User;
+            Console.WriteLine("CLAIMS!!!");
+            foreach (var claim in user.Claims)
+            {
+                Console.WriteLine($"{claim.Type} -> {claim.Value}");
+            }
             _username = user.Claims.First(c => c.Type == "email").Value;
         }
 
