@@ -50,6 +50,7 @@ namespace DolApi
 
             services.AddSingleton<IAdminService, AdminService>();
             services.AddSingleton<ICharacterRepo, CharacterRepo>();
+            services.AddSingleton<IPlayerRepo, PlayerRepo>();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

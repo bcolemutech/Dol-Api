@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DolApi.Controllers;
 using DolApi.POCOs;
+using DolApi.Repositories;
 using DolApi.Services;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
@@ -18,11 +19,13 @@ namespace DolApiTest.Controllers
     {
         private readonly UserController _sut;
         private readonly IAdminService _adminService;
+        private readonly IPlayerRepo _playerRepo;
 
         public UserControllerTest()
         {
+            _playerRepo = Substitute.For<IPlayerRepo>();
             _adminService = Substitute.For<IAdminService>();
-            _sut = new UserController(_adminService);
+            _sut = new UserController(_adminService, _playerRepo);
         }
 
         [Fact]
@@ -42,6 +45,8 @@ namespace DolApiTest.Controllers
 
             _adminService.Received(1).CreateUserAsync(Arg.Is<UserRecordArgs>(args =>
                 args.Email == "test@test.com" && !string.IsNullOrEmpty(args.Password)));
+
+            _playerRepo.Received(1).Add("test@test.com");
 
             var claims = new Dictionary<string, object>(new[] {new KeyValuePair<string, object>("Authority", "0")});
 
