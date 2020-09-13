@@ -1,15 +1,33 @@
-﻿namespace DolApi.Repositories
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using DolApi.Services;
+using Google.Cloud.Firestore;
+using Microsoft.Extensions.Configuration;
+
+namespace DolApi.Repositories
 {
     public interface IPlayerRepo
     {
-        void Add(string userName);
+        Task Add(string userName);
     }
 
     public class PlayerRepo : IPlayerRepo
     {
-        public void Add(string userName)
+        private const string Players = "players";
+        private readonly FirestoreDb _db;
+        public PlayerRepo(IConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+            _db = FirestoreDb.Create(configuration["PlayerId"]);
+        }
+
+        public async Task Add(string userName)
+        {
+            var docRef = _db.Collection(Players).Document(userName.ToLower());
+            var user = new Dictionary<string, object>
+            {
+                { "UserName", userName }
+            };
+            await docRef.SetAsync(user);
         }
     }
 }

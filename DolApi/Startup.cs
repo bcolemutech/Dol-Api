@@ -5,6 +5,7 @@ using DolApi.Repositories;
 using DolApi.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -28,11 +29,10 @@ namespace DolApi
             AppOptions options = new AppOptions
             {
                 Credential = GoogleCredential.GetApplicationDefault(),
-                ProjectId = "dominion-of-light"
+                ProjectId = Configuration["ProjectId"]
             };
             
             var app = FirebaseApp.Create(options);
-
             Console.WriteLine($"My app ID is {app.Options.ProjectId}!");
             
             services.AddMvc(option => option.EnableEndpointRouting = false);
