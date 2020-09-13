@@ -21,11 +21,11 @@ namespace DolApiTest.Controllers
         {
             var accessor = Substitute.For<IHttpContextAccessor>();
 
-            accessor.HttpContext.User.Claims.Returns(new[] {new Claim("email", "test@test.com")});
+            accessor.HttpContext.User.Claims.Returns(new[] {new Claim("user_id", "qwerty")});
             
             _characterRepo = Substitute.For<ICharacterRepo>();
 
-            _characterRepo.Add("test@test.com", "Bob").Returns(new Character {Name = "Bob"});
+            _characterRepo.Add("qwerty", "Bob").Returns(new Character {Name = "Bob"});
             
             _sut = new CharacterController(accessor, _characterRepo);
         }
@@ -35,7 +35,7 @@ namespace DolApiTest.Controllers
         {
             var result = await _sut.Put("Bob");
 
-            await _characterRepo.Received(1).Add(Arg.Is("test@test.com"),Arg.Is("Bob"));
+            await _characterRepo.Received(1).Add(Arg.Is("qwerty"),Arg.Is("Bob"));
 
             result.Should().BeOfType(typeof(CreatedResult));
             result.As<CreatedResult>().Value.Should().BeOfType(typeof(Character));
@@ -45,7 +45,7 @@ namespace DolApiTest.Controllers
         [Fact]
         public async Task GetWithNoNameReturnAllOfTheUsersCharacters()
         {
-            _characterRepo.RetrieveAll("test@test.com").Returns(
+            _characterRepo.RetrieveAll("qwerty").Returns(
                 new List<Character>
                 {
                     new Character {Name = "Louis"},
@@ -55,7 +55,7 @@ namespace DolApiTest.Controllers
             
             var result = await _sut.Get();
             
-            await _characterRepo.Received(1).RetrieveAll(Arg.Is("test@test.com"));
+            await _characterRepo.Received(1).RetrieveAll(Arg.Is("qwerty"));
             
             result.Should().BeOfType(typeof(OkObjectResult));
             result.As<OkObjectResult>().Value.Should().BeAssignableTo(typeof(List<Character>));
@@ -67,11 +67,11 @@ namespace DolApiTest.Controllers
         [Fact]
         public async Task GetWithNameReturnsSingleCharacter()
         {
-            _characterRepo.Retrieve("test@test.com","Peter").Returns(new Character {Name = "Peter"});
+            _characterRepo.Retrieve("qwerty","Peter").Returns(new Character {Name = "Peter"});
             
             var result = await _sut.Get("Peter");
             
-            await _characterRepo.Received(1).Retrieve(Arg.Is("test@test.com"),Arg.Is("Peter"));
+            await _characterRepo.Received(1).Retrieve(Arg.Is("qwerty"),Arg.Is("Peter"));
             
             result.Should().BeOfType(typeof(OkObjectResult));
             result.As<OkObjectResult>().Value.Should().BeAssignableTo(typeof(Character));
@@ -83,7 +83,7 @@ namespace DolApiTest.Controllers
         {
             var result = await _sut.Delete("Bob");
 
-            await _characterRepo.Received(1).Remove(Arg.Is("test@test.com"),Arg.Is("Bob"));
+            await _characterRepo.Received(1).Remove(Arg.Is("qwerty"),Arg.Is("Bob"));
 
             result.Should().BeOfType(typeof(NoContentResult));
         }
