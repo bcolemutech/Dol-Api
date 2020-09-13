@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DolApi.Repositories;
@@ -18,7 +19,13 @@ namespace DolApi.Controllers
         public CharacterController(IHttpContextAccessor httpContextAccessor, ICharacterRepo characterRepo)
         {
             _characterRepo = characterRepo;
-            Console.WriteLine(JsonSerializer.Serialize(httpContextAccessor.HttpContext.User));
+            var user = httpContextAccessor.HttpContext.User;
+            Console.WriteLine(
+                $"Claims count {user.Claims.Count()}|ID count {user.Identities.Count()}| name: {user.Identity.Name} - Auth {user.Identity.IsAuthenticated} - {user.Identity.AuthenticationType}");
+            if (user.Identities.Count() > 1)
+            {
+                Console.WriteLine(JsonSerializer.Serialize(user.Identities));
+            }
             _username = httpContextAccessor.HttpContext.User.Identity.Name;
         }
 
