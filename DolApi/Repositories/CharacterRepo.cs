@@ -26,7 +26,7 @@ namespace DolApi.Repositories
 
         public CharacterRepo(IConfiguration configuration)
         {
-            _db = FirestoreDb.Create(configuration["PlayerId"]);
+            _db = FirestoreDb.Create(configuration["ProjectId"]);
         }
 
         public async Task<Character> Add(string user, string name)
