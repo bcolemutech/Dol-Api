@@ -24,7 +24,7 @@ namespace DolApi.Controllers
         }
 
         [HttpPut]
-        [Route("{name:string}")]
+        [Route("{name}")]
         public async Task<IActionResult> Put(string name)
         {
             var character = await _characterRepo.Add(_userId, name);
@@ -41,7 +41,7 @@ namespace DolApi.Controllers
         }
 
         [HttpGet]
-        [Route("{name:string}")]
+        [Route("{name}")]
         public async Task<IActionResult> Get(string name)
         {
             var character = await _characterRepo.Retrieve(_userId, name);
@@ -50,7 +50,7 @@ namespace DolApi.Controllers
         }
 
         [HttpDelete]
-        [Route("{name:string}")]
+        [Route("{name}")]
         public async Task<IActionResult> Delete(string name)
         {
             await _characterRepo.Remove(_userId, name);
