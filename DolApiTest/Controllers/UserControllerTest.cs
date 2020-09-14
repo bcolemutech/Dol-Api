@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using DolApi.Controllers;
 using DolApi.POCOs;
 using DolApi.Repositories;
 using DolApi.Services;
-using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -48,8 +46,6 @@ namespace DolApiTest.Controllers
 
             _playerRepo.Received(1).Add("1234");
 
-            var claims = new Dictionary<string, object>(new[] {new KeyValuePair<string, object>("Authority", "0")});
-
             _adminService.Received(1).SetCustomUserClaimsAsync(Arg.Is("1234"),
                 Arg.Is<Dictionary<string, object>>(objects => (string) objects["Authority"] == "0"));
 
@@ -71,8 +67,6 @@ namespace DolApiTest.Controllers
 
             _adminService.Received(0).CreateUserAsync(Arg.Is<UserRecordArgs>(args =>
                 args.Email == "test@test.com" && !string.IsNullOrEmpty(args.Password)));
-
-            var claims = new Dictionary<string, object>(new[] {new KeyValuePair<string, object>("Authority", "0")});
 
             _adminService.Received(1).SetCustomUserClaimsAsync(Arg.Is("1234"),
                 Arg.Is<Dictionary<string, object>>(objects => (string) objects["Authority"] == "0"));

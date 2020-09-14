@@ -5,7 +5,6 @@ using DolApi.Repositories;
 using DolApi.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

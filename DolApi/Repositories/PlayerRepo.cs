@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using DolApi.Services;
 using Google.Cloud.Firestore;
 using Microsoft.Extensions.Configuration;
 
@@ -20,7 +19,7 @@ namespace DolApi.Repositories
         private readonly FirestoreDb _db;
         public PlayerRepo(IConfiguration configuration)
         {
-            _db = FirestoreDb.Create(configuration["PlayerId"]);
+            _db = FirestoreDb.Create(configuration["ProjectId"]);
         }
 
         public async Task Add(string userId)
