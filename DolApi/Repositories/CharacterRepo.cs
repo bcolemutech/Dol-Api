@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace DolApi.Repositories
 {
+    using Wrappers;
+
     public interface ICharacterRepo
     {
         Task<Character> Add(string user, string name);
@@ -17,16 +19,15 @@ namespace DolApi.Repositories
         Task Remove(string user, string name);
     }
 
-    [ExcludeFromCodeCoverage]
     public class CharacterRepo : ICharacterRepo
     {
         private const string Players = "players";
         private const string Characters = "characters";
-        private readonly FirestoreDb _db;
+        private readonly IFirestoreDb _db;
 
-        public CharacterRepo(IConfiguration configuration)
+        public CharacterRepo(IConfiguration configuration, IFirestoreFactory firestoreFactory)
         {
-            _db = FirestoreDb.Create(configuration["ProjectId"]);
+            _db = firestoreFactory.Create(configuration["ProjectId"]);
         }
 
         public async Task<Character> Add(string user, string name)

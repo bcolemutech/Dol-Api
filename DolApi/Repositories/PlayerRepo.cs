@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 using Microsoft.Extensions.Configuration;
 
 namespace DolApi.Repositories
 {
+    using Wrappers;
+
     public interface IPlayerRepo
     {
         Task Add(string userId);
     }
 
-    [ExcludeFromCodeCoverage]
     public class PlayerRepo : IPlayerRepo
     {
         private const string Players = "players";
-        private readonly FirestoreDb _db;
-        public PlayerRepo(IConfiguration configuration)
+        private readonly IFirestoreDb _db;
+
+        public PlayerRepo(IConfiguration configuration, IFirestoreFactory firestoreFactory)
         {
-            _db = FirestoreDb.Create(configuration["ProjectId"]);
+            _db = firestoreFactory.Create(configuration["ProjectId"]);
         }
 
         public async Task Add(string userId)

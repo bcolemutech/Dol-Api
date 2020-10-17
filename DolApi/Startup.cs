@@ -13,6 +13,8 @@ using Microsoft.Extensions.Hosting;
 
 namespace DolApi
 {
+    using Wrappers;
+
     [ExcludeFromCodeCoverage]
     public class Startup
     {
@@ -47,6 +49,7 @@ namespace DolApi
             
             services.AddHttpContextAccessor();
 
+            services.AddSingleton<IFirestoreFactory, FirestoreFactory>();
             services.AddSingleton<IAdminService, AdminService>();
             services.AddSingleton<ICharacterRepo, CharacterRepo>();
             services.AddSingleton<IPlayerRepo, PlayerRepo>();
