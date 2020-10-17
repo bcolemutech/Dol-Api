@@ -1,4 +1,4 @@
-﻿namespace DolApi.Controllers
+namespace DolApi.Controllers
 {
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
