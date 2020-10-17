@@ -24,9 +24,16 @@
         [Fact]
         public async Task GetReturnsOkObjectIfFound()
         {
-            var x = 1;
-            var y = 1;
+            const int x = 1;
+            const int y = 1;
+            
+            var area = new Area{ X = x, Y = y};
+
+            _areaRepo.Retrieve(x, y).Returns(Task.FromResult(area));
+            
             var actual = await _sut.Get(x, y);
+
+            await _areaRepo.Received(1).Retrieve(Arg.Is(x), Arg.Is(y));
 
             actual.Should().BeOfType<OkObjectResult>();
             actual.As<OkObjectResult>().Value.Should().BeOfType<Area>();
@@ -35,33 +42,48 @@
         }
 
         [Fact]
-        public void GetReturnsNotFoundIfResourceDoesNotExist()
+        public async Task GetReturnsNotFoundIfResourceDoesNotExist()
         {
-            throw new NotImplementedException();
+            const int x = -1;
+            const int y = 1;
+
+            _areaRepo.Retrieve(x, y).Returns(Task.FromResult<Area>(null));
+            
+            var actual = await _sut.Get(x, y);
+
+            await _areaRepo.Received(1).Retrieve(Arg.Is(x), Arg.Is(y));
+
+            actual.Should().BeOfType<NotFoundResult>();
         }
 
         [Fact]
-        public void PutGetsExistingRecordIfExistsAndReturnsOkObject()
+        public async Task PutGetsExistingRecordAndUpdatesIfExistsThenReturnsOkObject()
         {
-            throw new NotImplementedException();
+            const int x = 1;
+            const int y = 1;
+            
+            var inputArea = new Area{ X = x, Y = y};
+
+            var actual = await _sut.Put(x, y, inputArea);
+
+            await _areaRepo.Received(1).Replace(x, y, Arg.Is<Area>(area => area.X == 1 && area.Y == 1));
+
+            actual.Should().BeOfType<OkResult>();
         }
 
         [Fact]
-        public void PutReturnsNotFoundIfResourceDoesNotExist()
+        public async Task PutOverridesXAndYWithResourceIdentifiers()
         {
-            throw new NotImplementedException();
-        }
+            const int x = 1;
+            const int y = 1;
+            
+            var areaBad = new Area{ X = x, Y = 5};
 
-        [Fact]
-        public void PutUpdatesResource()
-        {
-            throw new NotImplementedException();
-        }
+            var actual = await _sut.Put(x, y, areaBad);
 
-        [Fact]
-        public void PutValidatesRecordAndReturnBadRequestIfInvalid()
-        {
-            throw new NotImplementedException();
+            await _areaRepo.Received(1).Replace(x, y, Arg.Is<Area>(area => area.X == 1 && area.Y == 1));
+
+            actual.Should().BeOfType<OkResult>();
         }
     }
 }
