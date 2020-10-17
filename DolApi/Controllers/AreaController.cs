@@ -1,4 +1,4 @@
-﻿namespace DolApi.Controllers
+namespace DolApi.Controllers
 {
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
@@ -6,7 +6,6 @@
     using POCOs;
     using Repositories;
 
-    [Authorize(Policy = "Players")]
     [Route("[controller]")]
     public class AreaController
     {
@@ -16,6 +15,7 @@
             _areaRepo = areaRepo;
         }
 
+        [Authorize(Policy = "Players")]
         [HttpGet]
         [Route("{x}/{y}")]
         public async Task<IActionResult> Get(int x, int y)
@@ -30,6 +30,7 @@
             return new OkObjectResult(character);
         }
 
+        [Authorize(Policy = "Admin")]
         [HttpPut]
         [Route("{x}/{y}")]
         public async Task<IActionResult> Put(int x, int y,[FromBody] Area area)
