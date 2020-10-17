@@ -1,4 +1,4 @@
-﻿namespace DolApi.POCOs
+namespace DolApi.POCOs
 {
     using Google.Cloud.Firestore;
 
