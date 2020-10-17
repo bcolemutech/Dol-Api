@@ -23,7 +23,7 @@
 
         public async Task<Area> Retrieve(int x, int y)
         {
-            var docRef = _db.Collection("areas").Document($"{x}-{y}");
+            var docRef = _db.Collection("area").Document($"{x}-{y}");
 
             var snapshot = await docRef.GetSnapshotAsync();
 
