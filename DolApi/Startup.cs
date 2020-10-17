@@ -50,9 +50,12 @@ namespace DolApi
             services.AddHttpContextAccessor();
 
             services.AddSingleton<IFirestoreFactory, FirestoreFactory>();
-            services.AddSingleton<IAdminService, AdminService>();
+            
             services.AddSingleton<ICharacterRepo, CharacterRepo>();
             services.AddSingleton<IPlayerRepo, PlayerRepo>();
+            services.AddSingleton<IAreaRepo, AreaRepo>();
+            
+            services.AddSingleton<IAdminService, AdminService>();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
