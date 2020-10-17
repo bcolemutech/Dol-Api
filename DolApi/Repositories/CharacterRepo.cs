@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DolApi.POCOs;
@@ -9,7 +8,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace DolApi.Repositories
 {
-    using Wrappers;
+    using Google.Cloud.Firestore.V1;
+    using Grpc.Core;
 
     public interface ICharacterRepo
     {
@@ -23,11 +23,11 @@ namespace DolApi.Repositories
     {
         private const string Players = "players";
         private const string Characters = "characters";
-        private readonly IFirestoreDb _db;
+        private readonly FirestoreDb _db;
 
-        public CharacterRepo(IConfiguration configuration, IFirestoreFactory firestoreFactory)
+        public CharacterRepo(IConfiguration configuration)
         {
-            _db = firestoreFactory.Create(configuration["ProjectId"]);
+            _db = FirestoreDb.Create(configuration["ProjectId"]);
         }
 
         public async Task<Character> Add(string user, string name)

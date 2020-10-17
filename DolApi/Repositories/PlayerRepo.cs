@@ -6,8 +6,6 @@ using Microsoft.Extensions.Configuration;
 
 namespace DolApi.Repositories
 {
-    using Wrappers;
-
     public interface IPlayerRepo
     {
         Task Add(string userId);
@@ -16,11 +14,11 @@ namespace DolApi.Repositories
     public class PlayerRepo : IPlayerRepo
     {
         private const string Players = "players";
-        private readonly IFirestoreDb _db;
+        private readonly FirestoreDb _db;
 
-        public PlayerRepo(IConfiguration configuration, IFirestoreFactory firestoreFactory)
+        public PlayerRepo(IConfiguration configuration)
         {
-            _db = firestoreFactory.Create(configuration["ProjectId"]);
+            _db = FirestoreDb.Create(configuration["ProjectId"]);
         }
 
         public async Task Add(string userId)
