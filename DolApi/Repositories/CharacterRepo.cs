@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DolApi.POCOs;
@@ -9,6 +8,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace DolApi.Repositories
 {
+    using Google.Cloud.Firestore.V1;
+    using Grpc.Core;
+
     public interface ICharacterRepo
     {
         Task<Character> Add(string user, string name);
@@ -17,7 +19,6 @@ namespace DolApi.Repositories
         Task Remove(string user, string name);
     }
 
-    [ExcludeFromCodeCoverage]
     public class CharacterRepo : ICharacterRepo
     {
         private const string Players = "players";

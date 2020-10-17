@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 using Microsoft.Extensions.Configuration;
@@ -12,11 +11,11 @@ namespace DolApi.Repositories
         Task Add(string userId);
     }
 
-    [ExcludeFromCodeCoverage]
     public class PlayerRepo : IPlayerRepo
     {
         private const string Players = "players";
         private readonly FirestoreDb _db;
+
         public PlayerRepo(IConfiguration configuration)
         {
             _db = FirestoreDb.Create(configuration["ProjectId"]);
