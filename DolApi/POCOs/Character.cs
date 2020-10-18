@@ -1,9 +1,10 @@
-﻿using Google.Cloud.Firestore;
-
-namespace DolApi.POCOs
+﻿namespace DolApi.POCOs
 {
+    using Google.Cloud.Firestore;
+    using dol_sdk.POCOs;
+    
     [FirestoreData]
-    public class Character
+    public class Character: ICharacter 
     {
         [FirestoreProperty]
         public string Name { get; set; }
