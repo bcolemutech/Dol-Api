@@ -16,10 +16,7 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Add GitHub package source
-      shell: pwsh
-      env:
-        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
-      run: dotnet nuget add source https://nuget.pkg.github.com/bcolemutech/index.json -n github -u bcolemutech -p "$env:PACKAGE_TOKEN"
+      run: dotnet nuget add source https://nuget.pkg.github.com/bcolemutech/index.json -n github -u bcolemutech -p "${{ secrets.PACKAGE_TOKEN }}"
     - name: Restore
       run: dotnet restore
     - name: Build
