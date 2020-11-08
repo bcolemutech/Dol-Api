@@ -16,9 +16,7 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Add GitHub package source
-      run: dotnet nuget add source https://nuget.pkg.github.com/bcolemutech/index.json -n github
-    - name: Add nuget package source
-      run: dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+      run: dotnet nuget add source https://nuget.pkg.github.com/bcolemutech/index.json -n github -u bcolemutech -p "$env:PACKAGE_TOKEN"
     - name: Restore
       run: dotnet restore
     - name: Build
