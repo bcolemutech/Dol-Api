@@ -2,7 +2,7 @@
 
 ARG package-token
 
-RUN echo $package-token
+RUN echo ${package-token}
 
 COPY . /app
 WORKDIR /app
