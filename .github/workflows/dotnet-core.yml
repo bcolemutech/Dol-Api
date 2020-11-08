@@ -15,8 +15,13 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
+    - name: Authenticate
+      shell: pwsh
+      env:
+        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+      run: dotnet nuget add source https://nuget.pkg.github.com/bcolemutech/index.json -n github -u bcolemutech -p "$env:PACKAGE_TOKEN"
     - name: Install dependencies
-      run: dotnet restore --configfile DolApi/nuget.config
+      run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
