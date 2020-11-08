@@ -4,6 +4,7 @@ COPY . /app
 WORKDIR /app
 
 RUN dotnet nuget add source https://nuget.pkg.github.com/bcolemutech/index.json -n github
+RUN dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
 
 RUN dotnet test
 RUN dotnet publish -c Release -o out
