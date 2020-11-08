@@ -1,9 +1,12 @@
-﻿FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
+﻿ARG package-token
+
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
 
 COPY . /app
 WORKDIR /app
 
-RUN dotnet nuget add source https://nuget.pkg.github.com/bcolemutech/index.json -n github -u bcolemutech -p "$_PACKAGE_TOKEN"
+RUN dotnet nuget add source https://nuget.pkg.github.com/bcolemutech/index.json -n github -u bcolemutech -p ${package-token}
+
 RUN dotnet test
 RUN dotnet publish -c Release -o out
 
