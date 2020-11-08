@@ -27,7 +27,7 @@ jobs:
           
       - name: Build
         run: |
-          docker build --build-arg package-token="${{ secrets.PACKAGE_TOKEN }}" --no-cache -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/dol-api:latest .
+          docker build --no-cache -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/dol-api:latest .
           
       - name: Push
         run: |
