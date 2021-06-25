@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using dol_sdk.Enums;
 using DolApi.Controllers;
 using DolApi.POCOs;
 using DolApi.Repositories;
@@ -31,7 +32,7 @@ namespace DolApiTest.Controllers
         {
             var request = new PlayerRequest
             {
-                Authority = "0",
+                Authority = Authority.Admin,
                 Email = "test@test.com"
             };
 
@@ -47,7 +48,7 @@ namespace DolApiTest.Controllers
             _playerRepo.Received(1).Add("1234");
 
             _adminService.Received(1).SetCustomUserClaimsAsync(Arg.Is("1234"),
-                Arg.Is<Dictionary<string, object>>(objects => (string) objects["Authority"] == "0"));
+                Arg.Is<Dictionary<string, object>>(objects => (int) objects["Authority"] == 0));
 
             actual.Result.Should().BeOfType<OkResult>();
         }
@@ -57,7 +58,7 @@ namespace DolApiTest.Controllers
         {
             var request = new PlayerRequest
             {
-                Authority = "0",
+                Authority = Authority.Admin,
                 Email = "test@test.com"
             };
 
@@ -69,7 +70,7 @@ namespace DolApiTest.Controllers
                 args.Email == "test@test.com" && !string.IsNullOrEmpty(args.Password)));
 
             _adminService.Received(1).SetCustomUserClaimsAsync(Arg.Is("1234"),
-                Arg.Is<Dictionary<string, object>>(objects => (string) objects["Authority"] == "0"));
+                Arg.Is<Dictionary<string, object>>(objects => (int) objects["Authority"] == 0));
 
             actual.Result.Should().BeOfType<OkResult>();
         }
