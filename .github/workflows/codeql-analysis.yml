@@ -40,6 +40,13 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+      
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@master
+      with:
+        find: "TOKENHERE"
+        replace: "${{ secrets.PACKAGE_TOKEN }}"
+        include: "NuGet.Config"
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
