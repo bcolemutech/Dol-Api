@@ -22,7 +22,7 @@ namespace DolApi
         }
 
         private IConfiguration Configuration { get; }
-        
+
         public void ConfigureServices(IServiceCollection services)
         {
             AppOptions options = new AppOptions
@@ -30,10 +30,10 @@ namespace DolApi
                 Credential = GoogleCredential.GetApplicationDefault(),
                 ProjectId = Configuration["ProjectId"]
             };
-            
+
             var app = FirebaseApp.Create(options);
             Console.WriteLine($"My app ID is {app.Options.ProjectId}!");
-            
+
             services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddFirebaseAuthentication(Configuration["FirebaseAuthentication:Issuer"],
                 Configuration["FirebaseAuthentication:Audience"]);
@@ -44,22 +44,27 @@ namespace DolApi
                 option.AddPolicy("Testers", policy => policy.RequireClaim("Authority", "0", "1"));
                 option.AddPolicy("Players", policy => policy.RequireClaim("Authority", "0", "1", "2"));
             });
-            
+
+            services.AddSwaggerGen();
             services.AddHttpContextAccessor();
-            
+
             services.AddSingleton<ICharacterRepo, CharacterRepo>();
             services.AddSingleton<IPlayerRepo, PlayerRepo>();
             services.AddSingleton<IAreaRepo, AreaRepo>();
-            
+
             services.AddSingleton<IAdminService, AdminService>();
         }
-        
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(
+                c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "DOL API V1"); });
 
             app.UseHttpsRedirection();
 
