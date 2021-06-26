@@ -1,11 +1,9 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build_env
 
-ARG package_token
-
 COPY . /app
 WORKDIR /app
 
-RUN dotnet nuget add source https://nuget.pkg.github.com/bcolemutech/index.json -n github -u bcolemutech -p ${package_token} --store-password-in-clear-text
+RUN dotnet restore --configfile "./DolApi/NuGet.Config"
 
 RUN dotnet publish -c Release -o out
 
