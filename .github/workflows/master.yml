@@ -7,11 +7,18 @@ on:
 jobs:
   deploy:
     name: Cloud Run Deployment
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          find: "TOKENHERE"
+          replace: "${{ secrets.PACKAGE_TOKEN }}"
+          include: "NuGet.Config"
         
       - name: Push to GCR
         uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
