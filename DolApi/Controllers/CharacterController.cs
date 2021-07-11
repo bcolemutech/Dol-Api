@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using dol_sdk.POCOs;
 using DolApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -54,6 +55,13 @@ namespace DolApi.Controllers
             await _characterRepo.Remove(_userId, name);
             
             return new NoContentResult();
+        }
+
+        [HttpPut]
+        [Route("{name}/move")]
+        public async Task<IActionResult> PutMove(string name, [FromBody] IPosition move)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
