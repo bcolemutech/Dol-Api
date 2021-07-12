@@ -1,24 +1,36 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using dol_sdk.Enums;
+using dol_sdk.POCOs;
 using DolApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Action = dol_sdk.Enums.Action;
 
 namespace DolApi.Controllers
 {
     [Authorize(Policy = "Players")]
     [Route("[controller]")]
-    public class CharacterController
+    public class CharacterController : ControllerBase
     {
         private readonly ICharacterRepo _characterRepo;
+        private readonly IAreaRepo _areaRepo;
         private readonly string _userId;
+        private readonly string _encounterEngineUrl;
 
-        public CharacterController(IHttpContextAccessor httpContextAccessor, ICharacterRepo characterRepo)
+        private readonly Action[] allowedPositionActions = {Action.Idle, Action.Rest};
+
+        public CharacterController(IHttpContextAccessor httpContextAccessor, ICharacterRepo characterRepo,
+            IAreaRepo areaRepo, IConfiguration configuration)
         {
             _characterRepo = characterRepo;
-            var user = httpContextAccessor.HttpContext.User;
-            _userId = user.Claims.First(c => c.Type == "user_id").Value;
+            _areaRepo = areaRepo;
+            var user = httpContextAccessor.HttpContext?.User;
+            _userId = user?.Claims.First(c => c.Type == "user_id").Value;
+            _encounterEngineUrl = configuration["EncounterEngineUrl"];
         }
 
         [HttpPut]
@@ -34,7 +46,7 @@ namespace DolApi.Controllers
         public async Task<IActionResult> Get()
         {
             var characters = await _characterRepo.RetrieveAll(_userId);
-            
+
             return new OkObjectResult(characters);
         }
 
@@ -43,7 +55,7 @@ namespace DolApi.Controllers
         public async Task<IActionResult> Get(string name)
         {
             var character = await _characterRepo.Retrieve(_userId, name);
-            
+
             return new OkObjectResult(character);
         }
 
@@ -52,8 +64,62 @@ namespace DolApi.Controllers
         public async Task<IActionResult> Delete(string name)
         {
             await _characterRepo.Remove(_userId, name);
-            
+
             return new NoContentResult();
+        }
+
+        [HttpPut]
+        [Route("{name}/move")]
+        public async Task<IActionResult> PutMove(string name, [FromBody] Position move)
+        {
+            var (validPosition, actionResult) = await TryValidatePosition(move, true);
+            if (!validPosition) return actionResult;
+
+            await _characterRepo.SetMove(_userId, name, move);
+
+            move.Action = Action.Idle;
+
+            await _characterRepo.SetPosition(_userId, name, move);
+
+            var encounterGuid = Guid.NewGuid();
+
+            var route = new Uri($"{_encounterEngineUrl}/{encounterGuid}", UriKind.Absolute);
+
+            return Accepted(route);
+        }
+
+        [HttpPut]
+        [Route("{name}/position")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> PutPosition(string name, Position position)
+        {
+            var (validPosition, actionResult) = await TryValidatePosition(position, false);
+            if (!validPosition) return actionResult;
+            
+            await _characterRepo.SetPosition(_userId, name, position);
+
+            return Ok();
+        }
+        
+        private async Task<Tuple<bool, IActionResult>> TryValidatePosition(IPosition position, bool moving)
+        {
+            const string objectInvalid = "Position object is not valid.";
+
+            if (!moving && !allowedPositionActions.Contains(position.Action))
+                return new Tuple<bool, IActionResult>(false,
+                    UnprocessableEntity($"{objectInvalid} The {position.Action} action is not allowed for current position"));
+            
+            var area = await _areaRepo.Retrieve(position.X, position.Y);
+
+            if (area is null)
+                return new Tuple<bool, IActionResult>(false,
+                    UnprocessableEntity($"{objectInvalid} Area {position.X},{position.Y} does not exist"));
+
+            if (area.Navigation == Navigation.Impassable)
+                return new Tuple<bool, IActionResult>(false,
+                    UnprocessableEntity($"{objectInvalid} Area {position.X},{position.Y} is impassable"));
+
+            return new Tuple<bool, IActionResult>(true, null);
         }
     }
 }
