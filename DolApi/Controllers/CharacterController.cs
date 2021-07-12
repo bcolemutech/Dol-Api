@@ -1,25 +1,35 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using dol_sdk.Enums;
 using dol_sdk.POCOs;
 using DolApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Action = dol_sdk.Enums.Action;
 
 namespace DolApi.Controllers
 {
+    
     [Authorize(Policy = "Players")]
     [Route("[controller]")]
-    public class CharacterController
+    public class CharacterController : ControllerBase
     {
         private readonly ICharacterRepo _characterRepo;
+        private readonly IAreaRepo _areaRepo;
         private readonly string _userId;
+        private readonly string _encounterEngineUrl;
 
-        public CharacterController(IHttpContextAccessor httpContextAccessor, ICharacterRepo characterRepo)
+        public CharacterController(IHttpContextAccessor httpContextAccessor, ICharacterRepo characterRepo,
+            IAreaRepo areaRepo, IConfiguration configuration)
         {
             _characterRepo = characterRepo;
-            var user = httpContextAccessor.HttpContext.User;
-            _userId = user.Claims.First(c => c.Type == "user_id").Value;
+            _areaRepo = areaRepo;
+            var user = httpContextAccessor.HttpContext?.User;
+            _userId = user?.Claims.First(c => c.Type == "user_id").Value;
+            _encounterEngineUrl = configuration["EncounterEngineUrl"];
         }
 
         [HttpPut]
@@ -59,9 +69,32 @@ namespace DolApi.Controllers
 
         [HttpPut]
         [Route("{name}/move")]
-        public async Task<IActionResult> PutMove(string name, [FromBody] IPosition move)
+        public async Task<IActionResult> PutMove(string name, [FromBody] Position move)
         {
-            throw new System.NotImplementedException();
+            const string objectInvalid = "Position object is not valid.";
+            var area = await _areaRepo.Retrieve(move.X, move.Y);
+
+            if (area is null)
+            {
+                return BadRequest($"{objectInvalid} Area {move.X},{move.Y} does not exist");
+            }
+
+            if (area.Navigation == Navigation.Impassable)
+            {
+                return BadRequest($"{objectInvalid} Area {move.X},{move.Y} is impassable");
+            }
+
+            await _characterRepo.SetMove(_userId, name, move);
+
+            move.Action = Action.Idle;
+
+            await _characterRepo.SetPosition(_userId, name, move);
+
+            var encounterGuid = Guid.NewGuid();
+            
+            var route = new Uri($"{_encounterEngineUrl}/{encounterGuid}", UriKind.Absolute);
+
+            return Accepted(route);
         }
     }
 }
