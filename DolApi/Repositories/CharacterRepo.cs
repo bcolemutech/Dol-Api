@@ -68,12 +68,26 @@ namespace DolApi.Repositories
 
         public async Task SetMove(string user, string name, IPosition move)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Setting move for player {user} on character {name}");
+            var docRef = _db.Collection(Players).Document(user).Collection(Characters).Document($"{name.ToLower()}:");
+            var snapshot = await docRef.GetSnapshotAsync();
+            var character = snapshot.ConvertTo<Character>();
+
+            character.Move = move;
+
+            await docRef.SetAsync(character, SetOptions.MergeAll);
         }
 
         public async Task SetPosition(string user, string name, IPosition position)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Setting position for player {user} on character {name}");
+            var docRef = _db.Collection(Players).Document(user).Collection(Characters).Document($"{name.ToLower()}:");
+            var snapshot = await docRef.GetSnapshotAsync();
+            var character = snapshot.ConvertTo<Character>();
+
+            character.Position = position;
+
+            await docRef.SetAsync(character, SetOptions.MergeAll);
         }
     }
 }
