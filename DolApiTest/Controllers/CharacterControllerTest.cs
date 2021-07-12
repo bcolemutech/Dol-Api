@@ -37,7 +37,7 @@ namespace DolApiTest.Controllers
 
             var config = Substitute.For<IConfiguration>();
             config["EncounterEngineUrl"].Returns(@"https://bologna.com");
-            
+
             _sut = new CharacterController(accessor, _characterRepo, _areaRepo, config);
         }
 
@@ -46,7 +46,7 @@ namespace DolApiTest.Controllers
         {
             var result = await _sut.Put("Bob");
 
-            await _characterRepo.Received(1).Add(Arg.Is("qwerty"),Arg.Is("Bob"));
+            await _characterRepo.Received(1).Add(Arg.Is("qwerty"), Arg.Is("Bob"));
 
             result.Should().BeOfType(typeof(CreatedResult));
             result.As<CreatedResult>().Value.Should().BeOfType(typeof(Character));
@@ -63,11 +63,11 @@ namespace DolApiTest.Controllers
                     new Character {Name = "Peter"}
                 }
             );
-            
+
             var result = await _sut.Get();
-            
+
             await _characterRepo.Received(1).RetrieveAll(Arg.Is("qwerty"));
-            
+
             result.Should().BeOfType(typeof(OkObjectResult));
             result.As<OkObjectResult>().Value.Should().BeAssignableTo(typeof(List<Character>));
             result.As<OkObjectResult>().Value.As<List<Character>>().Should().HaveCount(2).And
@@ -78,12 +78,12 @@ namespace DolApiTest.Controllers
         [Fact]
         public async Task GetWithNameReturnsSingleCharacter()
         {
-            _characterRepo.Retrieve("qwerty","Peter").Returns(new Character {Name = "Peter"});
-            
+            _characterRepo.Retrieve("qwerty", "Peter").Returns(new Character {Name = "Peter"});
+
             var result = await _sut.Get("Peter");
-            
-            await _characterRepo.Received(1).Retrieve(Arg.Is("qwerty"),Arg.Is("Peter"));
-            
+
+            await _characterRepo.Received(1).Retrieve(Arg.Is("qwerty"), Arg.Is("Peter"));
+
             result.Should().BeOfType(typeof(OkObjectResult));
             result.As<OkObjectResult>().Value.Should().BeAssignableTo(typeof(Character));
             result.As<OkObjectResult>().Value.As<Character>().Name.Should().Be("Peter");
@@ -94,19 +94,19 @@ namespace DolApiTest.Controllers
         {
             var result = await _sut.Delete("Bob");
 
-            await _characterRepo.Received(1).Remove(Arg.Is("qwerty"),Arg.Is("Bob"));
+            await _characterRepo.Received(1).Remove(Arg.Is("qwerty"), Arg.Is("Bob"));
 
             result.Should().BeOfType(typeof(NoContentResult));
         }
-        
+
         [Fact]
         public async Task PutMoveUpdatesPositionForNow()
         {
             var move = new Position {X = 1, Y = 2, Location = "House", Populace = "Township", Action = Action.Move};
             var result = await _sut.PutMove("Bob", move);
-            
+
             await _areaRepo.Received(1).Retrieve(1, 2);
-            await _characterRepo.Received(1).SetMove(Arg.Is("qwerty"),Arg.Is("Bob"), Arg.Any<IPosition>());
+            await _characterRepo.Received(1).SetMove(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
             await _characterRepo.Received(1).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"),
                 Arg.Is<IPosition>(i =>
                     i.Action == Action.Idle && i.X == 1 && i.Y == 2 && i.Location == "House" &&
@@ -118,11 +118,11 @@ namespace DolApiTest.Controllers
         }
 
         [Theory]
-        [InlineData(-1, 2,  "House", "Township", Action.Move, "Area -1,2 does not exist")]
-        [InlineData(1, -2,  "House", "Township", Action.Move, "Area 1,-2 does not exist")]
-        [InlineData(-1, -2,  "House", "Township", Action.Move, "Area -1,-2 does not exist")]
-        [InlineData(5, 5,  "", "", Action.Move, "Area 5,5 does not exist")]
-        [InlineData(3, 3,  "", "", Action.Move, "Area 3,3 is impassable")]
+        [InlineData(-1, 2, "House", "Township", Action.Move, "Area -1,2 does not exist")]
+        [InlineData(1, -2, "House", "Township", Action.Move, "Area 1,-2 does not exist")]
+        [InlineData(-1, -2, "House", "Township", Action.Move, "Area -1,-2 does not exist")]
+        [InlineData(5, 5, "", "", Action.Move, "Area 5,5 does not exist")]
+        [InlineData(3, 3, "", "", Action.Move, "Area 3,3 is impassable")]
         public async Task GivenPutToMoveWhenRequestLocationOrAreaDoesntExistThenReturnUnprocessableEntity(int x,
             int y,
             string location,
@@ -132,18 +132,88 @@ namespace DolApiTest.Controllers
         {
             _areaRepo.ClearReceivedCalls();
             _characterRepo.ClearReceivedCalls();
-            
+
             var move = new Position() {X = x, Y = y, Location = location, Populace = populace, Action = action};
-            
+
             var result = await _sut.PutMove("Bob", move);
 
             await _areaRepo.Received(1).Retrieve(x, y);
-            await _characterRepo.Received(0).SetMove(Arg.Is("qwerty"),Arg.Is("Bob"), Arg.Any<IPosition>());
+            await _characterRepo.Received(0).SetMove(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
             await _characterRepo.Received(0).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
-            
-            result.Should().BeOfType(typeof(BadRequestObjectResult));
-            result.As<BadRequestObjectResult>().Value.Should().BeOfType(typeof(string));
-            result.As<BadRequestObjectResult>().Value.As<string>().Should().Be($"Position object is not valid. {message}");
+
+            result.Should().BeOfType(typeof(UnprocessableEntityObjectResult));
+            result.As<UnprocessableEntityObjectResult>().Value.Should().BeOfType(typeof(string));
+            result.As<UnprocessableEntityObjectResult>().Value.As<string>().Should()
+                .Be($"Position object is not valid. {message}");
+        }
+
+        [Fact]
+        public async Task PutPositionUpdatesPosition()
+        {
+            var position = new Position {X = 1, Y = 2, Location = "House", Populace = "Township", Action = Action.Idle};
+            var result = await _sut.PutPosition("Bob", position);
+
+            await _areaRepo.Received(1).Retrieve(1, 2);
+            await _characterRepo.Received(1).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"),
+                Arg.Is<IPosition>(i =>
+                    i.Action == Action.Idle && i.X == 1 && i.Y == 2 && i.Location == "House" &&
+                    i.Populace == "Township"));
+
+            result.Should().BeOfType(typeof(OkResult));
+        }
+
+        [Theory]
+        [InlineData(-1, 2, "House", "Township", Action.Idle, "Area -1,2 does not exist")]
+        [InlineData(1, -2, "House", "Township", Action.Idle, "Area 1,-2 does not exist")]
+        [InlineData(-1, -2, "House", "Township", Action.Idle, "Area -1,-2 does not exist")]
+        [InlineData(5, 5, "", "", Action.Idle, "Area 5,5 does not exist")]
+        [InlineData(3, 3, "", "", Action.Idle, "Area 3,3 is impassable")]
+        public async Task GivenPutToPositionWhenRequestLocationOrAreaDoesntExistThenReturnUnprocessableEntity(int x,
+            int y,
+            string location,
+            string populace,
+            Action action,
+            string message)
+        {
+            _areaRepo.ClearReceivedCalls();
+            _characterRepo.ClearReceivedCalls();
+
+            var position = new Position {X = x, Y = y, Location = location, Populace = populace, Action = action};
+
+            var result = await _sut.PutPosition("Bob", position);
+
+            await _areaRepo.Received(1).Retrieve(x, y);
+            await _characterRepo.Received(0).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
+
+            result.Should().BeOfType(typeof(UnprocessableEntityObjectResult));
+            result.As<UnprocessableEntityObjectResult>().Value.Should().BeOfType(typeof(string));
+            result.As<UnprocessableEntityObjectResult>().Value.As<string>().Should()
+                .Be($"Position object is not valid. {message}");
+        }
+
+        [Theory]
+        [InlineData(1, 2, "House", "Township", Action.Move, "The Move action is not allowed for current position")]
+        public async Task GivenPutToPositionWhenRequestedActionIsNotAllowedThenReturnUnprocessableEntity(int x,
+            int y,
+            string location,
+            string populace,
+            Action action,
+            string message)
+        {
+            _areaRepo.ClearReceivedCalls();
+            _characterRepo.ClearReceivedCalls();
+
+            var position = new Position {X = x, Y = y, Location = location, Populace = populace, Action = action};
+
+            var result = await _sut.PutPosition("Bob", position);
+
+            await _areaRepo.Received(0).Retrieve(x, y);
+            await _characterRepo.Received(0).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
+
+            result.Should().BeOfType(typeof(UnprocessableEntityObjectResult));
+            result.As<UnprocessableEntityObjectResult>().Value.Should().BeOfType(typeof(string));
+            result.As<UnprocessableEntityObjectResult>().Value.As<string>().Should()
+                .Be($"Position object is not valid. {message}");
         }
     }
 }
