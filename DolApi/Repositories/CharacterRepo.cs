@@ -9,9 +9,6 @@ using Character = DolApi.POCOs.Character;
 
 namespace DolApi.Repositories
 {
-    using Google.Cloud.Firestore.V1;
-    using Grpc.Core;
-
     public interface ICharacterRepo
     {
         Task<Character> Add(string user, string name);
