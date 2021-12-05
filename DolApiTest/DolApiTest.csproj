@@ -9,9 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="4.4.1" />
     <PackageReference Include="FluentAssertions" Version="6.2.0" />
+    <PackageReference Include="Google.Api.CommonProtos" Version="2.4.0" />
+    <PackageReference Include="Google.Apis" Version="1.55.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.55.0" />
+    <PackageReference Include="Google.Apis.Core" Version="1.55.0" />
     <PackageReference Include="Google.Cloud.Datastore.V1" Version="3.3.0" />
     <PackageReference Include="Google.Cloud.Firestore" Version="2.4.0" />
+    <PackageReference Include="Google.Cloud.Firestore.V1" Version="2.4.0" />
+    <PackageReference Include="Google.LongRunning" Version="2.3.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.19.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NSubstitute" Version="4.2.2" />
