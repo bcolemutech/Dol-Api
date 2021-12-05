@@ -17,7 +17,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@master
         with:
           find: "TOKENHERE"
-          replace: "${{ secrets.PACKAGE_TOKEN }}"
+          replace: "${{ secrets.GITHUB_TOKEN }}"
           include: "NuGet.Config"
 
       - name: Setup .NET 6
