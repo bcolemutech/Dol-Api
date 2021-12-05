@@ -3,7 +3,7 @@
 COPY . /app
 WORKDIR /app
 
-RUN dotnet restore --configfile "./DolApi/NuGet.Config"
+RUN dotnet restore --configfile "./DolApi/nuget.config"
 
 RUN dotnet publish -c Release -o out
 
