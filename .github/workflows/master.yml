@@ -18,7 +18,7 @@ jobs:
         with:
           find: "TOKENHERE"
           replace: ${{ secrets.PACKAGE_TOKEN }}
-          include: "nuget.config"
+          include: "**nuget.config"
         
       - name: Push to GCR
         uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
