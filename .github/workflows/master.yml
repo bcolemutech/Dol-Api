@@ -3,23 +3,23 @@
 on:
   push:
     branches: [ master ]
-    
+
 jobs:
   deploy:
     name: Cloud Run Deployment
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
+
       - name: Find and Replace
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           find: "TOKENHERE"
           replace: ${{ secrets.PACKAGE_TOKEN }}
           include: "**nuget.config"
-        
+
       - name: Push to GCR
         uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
         with:
@@ -27,11 +27,15 @@ jobs:
           registry: gcr.io
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           image_name: dol-api
-          
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v0.4.0'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
       - name: Deploy to Cloud Run
         id: deploy
-        uses: google-github-actions/deploy-cloudrun@main
+        uses: google-github-actions/deploy-cloudrun@v0.6.0
         with:
           service: api
           image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/dol-api
-          credentials: ${{ secrets.GCP_SA_KEY }}
