@@ -20,14 +20,14 @@ namespace DolApi.Controllers
         [Route("{x}/{y}")]
         public async Task<IActionResult> Get(int x, int y)
         {
-            var character = await _areaRepo.Retrieve(x, y);
+            var area = await _areaRepo.Retrieve(x, y);
 
-            if (character == null)
+            if (area == null)
             {
                 return new NotFoundResult();
             }
             
-            return new OkObjectResult(character);
+            return new OkObjectResult(area);
         }
 
         [Authorize(Policy = "Admin")]
@@ -41,6 +41,15 @@ namespace DolApi.Controllers
             await _areaRepo.Replace(x, y, area);
 
             return new OkResult();
+        }
+
+        [Authorize(Policy = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var areas = await _areaRepo.RetrieveAll();
+
+            return new OkObjectResult(areas);
         }
     }
 }
