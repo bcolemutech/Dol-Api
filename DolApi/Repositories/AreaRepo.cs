@@ -1,6 +1,8 @@
 ﻿namespace DolApi.Repositories
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Google.Cloud.Firestore;
     using Microsoft.Extensions.Configuration;
@@ -10,6 +12,7 @@
     {
         Task<Area> Retrieve(int x, int y);
         Task Replace(int x, int y, Area area);
+        Task<IEnumerable<Area>> RetrieveAll();
     }
 
     public class AreaRepo : IAreaRepo
@@ -35,6 +38,15 @@
             Console.WriteLine($"Add/replace area {x}-{y}");
             var docRef = _db.Collection("area").Document($"{x}-{y}");
             await docRef.SetAsync(area, SetOptions.MergeAll);
+        }
+
+        public async Task<IEnumerable<Area>> RetrieveAll()
+        {
+            var query = _db.Collection("area");
+
+            var snapshot = await query.GetSnapshotAsync();
+
+            return snapshot.Documents.Select(document => document.ConvertTo<Area>());
         }
     }
 }
