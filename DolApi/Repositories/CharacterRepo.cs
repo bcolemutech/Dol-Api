@@ -11,7 +11,7 @@ namespace DolApi.Repositories
 {
     public interface ICharacterRepo
     {
-        Task<Character> Add(string user, string name);
+        Task<Character> Add(string user, string name, IPosition startPosition);
         Task<IEnumerable<Character>> RetrieveAll(string user);
         Task<Character> Retrieve(string user, string name);
         Task Remove(string user, string name);
@@ -30,7 +30,7 @@ namespace DolApi.Repositories
             _db = FirestoreDb.Create(configuration["ProjectId"]);
         }
 
-        public async Task<Character> Add(string user, string name)
+        public async Task<Character> Add(string user, string name, IPosition startPosition)
         {
             Console.WriteLine($"Adding character {name} to player {user}");
             var docRef = _db.Collection(Players).Document(user).Collection(Characters).Document($"{name.ToLower()}:");

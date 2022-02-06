@@ -20,6 +20,7 @@ namespace DolApi.Controllers
         private readonly IAreaRepo _areaRepo;
         private readonly string _userId;
         private readonly string _encounterEngineUrl;
+        private readonly IPosition _startingPosition;
 
         private readonly Action[] allowedPositionActions = {Action.Idle, Action.Rest};
 
@@ -28,6 +29,12 @@ namespace DolApi.Controllers
         {
             _characterRepo = characterRepo;
             _areaRepo = areaRepo;
+            _startingPosition = new Position
+            {
+                X = Convert.ToInt32(configuration["StartPosition:X"]),
+                Y = Convert.ToInt32(configuration["StartPosition:Y"]),
+                Populace = configuration["StartPosition:Populace"]
+            };
             var user = httpContextAccessor.HttpContext?.User;
             _userId = user?.Claims.First(c => c.Type == "user_id").Value;
             _encounterEngineUrl = configuration["EncounterEngineUrl"];
@@ -37,7 +44,7 @@ namespace DolApi.Controllers
         [Route("{name}")]
         public async Task<IActionResult> Put(string name)
         {
-            var character = await _characterRepo.Add(_userId, name);
+            var character = await _characterRepo.Add(_userId, name, _startingPosition);
 
             return new CreatedResult($"/Character/{character.Name}", character);
         }

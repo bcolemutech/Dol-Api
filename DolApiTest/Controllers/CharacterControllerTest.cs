@@ -31,12 +31,20 @@ namespace DolApiTest.Controllers
             _characterRepo = Substitute.For<ICharacterRepo>();
             _areaRepo = Substitute.For<IAreaRepo>();
 
-            _characterRepo.Add("qwerty", "Bob").Returns(new Character {Name = "Bob"});
+            _characterRepo.Add("qwerty", "Bob", Arg.Any<IPosition>())
+                .Returns(info => new Character
+                {
+                    Name = info[1].ToString(),
+                    Position = (IPosition)info[2]
+                });
             _areaRepo.Retrieve(1, 2).Returns(new DolApi.POCOs.Area {X = 1, Y = 2, Navigation = Navigation.Roads});
             _areaRepo.Retrieve(3, 3).Returns(new DolApi.POCOs.Area {X = 3, Y = 3, Navigation = Navigation.Impassable});
 
             var config = Substitute.For<IConfiguration>();
             config["EncounterEngineUrl"].Returns(@"https://bologna.com");
+            config["StartPosition:X"].Returns("23");
+            config["StartPosition:Y"].Returns("22");
+            config["StartPosition:Populace"].Returns("city");
 
             _sut = new CharacterController(accessor, _characterRepo, _areaRepo, config);
         }
@@ -44,13 +52,21 @@ namespace DolApiTest.Controllers
         [Fact]
         public async Task PutCreatesNewCharacter()
         {
+            var expectedPosition = new Position
+            {
+                X = 23,
+                Y = 22,
+                Populace = "city"
+            };
+            
             var result = await _sut.Put("Bob");
 
-            await _characterRepo.Received(1).Add(Arg.Is("qwerty"), Arg.Is("Bob"));
+            await _characterRepo.Received(1).Add(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
 
             result.Should().BeOfType(typeof(CreatedResult));
             result.As<CreatedResult>().Value.Should().BeOfType(typeof(Character));
             result.As<CreatedResult>().Value.As<Character>().Name.Should().Be("Bob");
+            result.As<CreatedResult>().Value.As<Character>().Position.Should().BeEquivalentTo(expectedPosition);
         }
 
         [Fact]
@@ -59,8 +75,8 @@ namespace DolApiTest.Controllers
             _characterRepo.RetrieveAll("qwerty").Returns(
                 new List<Character>
                 {
-                    new Character {Name = "Louis"},
-                    new Character {Name = "Peter"}
+                    new() {Name = "Louis"},
+                    new() {Name = "Peter"}
                 }
             );
 
