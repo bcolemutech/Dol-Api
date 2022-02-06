@@ -10,6 +10,7 @@
     {
         Task<Area> Retrieve(int x, int y);
         Task Replace(int x, int y, Area area);
+        Task<Area[]> RetrieveAll();
     }
 
     public class AreaRepo : IAreaRepo
@@ -35,6 +36,11 @@
             Console.WriteLine($"Add/replace area {x}-{y}");
             var docRef = _db.Collection("area").Document($"{x}-{y}");
             await docRef.SetAsync(area, SetOptions.MergeAll);
+        }
+
+        public Task<Area[]> RetrieveAll()
+        {
+            throw new NotImplementedException();
         }
     }
 }
