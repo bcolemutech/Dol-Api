@@ -10,20 +10,20 @@
     <PackageReference Include="dol-sdk" Version="0.2.3" />
     <PackageReference Include="FirebaseAdmin" Version="2.2.0" />
     <PackageReference Include="FirebaseAuthentication.net" Version="3.7.2" />
-    <PackageReference Include="Google.Api.CommonProtos" Version="2.4.0" />
-    <PackageReference Include="Google.Api.Gax.Rest" Version="3.5.0" />
+    <PackageReference Include="Google.Api.CommonProtos" Version="2.5.0" />
+    <PackageReference Include="Google.Api.Gax.Rest" Version="3.6.0" />
     <PackageReference Include="Google.Apis" Version="1.55.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.55.0" />
     <PackageReference Include="Google.Apis.Core" Version="1.55.0" />
-    <PackageReference Include="Google.Cloud.Firestore" Version="2.4.0" />
-    <PackageReference Include="Google.Cloud.Firestore.V1" Version="2.4.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="2.5.0" />
+    <PackageReference Include="Google.Cloud.Firestore.V1" Version="2.5.0" />
     <PackageReference Include="Google.LongRunning" Version="2.3.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.19.1" />
-    <PackageReference Include="Grpc.Auth" Version="2.42.0" />
-    <PackageReference Include="Grpc.Core" Version="2.42.0" />
-    <PackageReference Include="Grpc.Core.Api" Version="2.42.0" />
-    <PackageReference Include="JWT" Version="8.7.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.19.4" />
+    <PackageReference Include="Grpc.Auth" Version="2.43.0" />
+    <PackageReference Include="Grpc.Core" Version="2.43.0" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.43.0" />
+    <PackageReference Include="JWT" Version="8.9.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
