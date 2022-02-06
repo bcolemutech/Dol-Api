@@ -85,5 +85,27 @@
 
             actual.Should().BeOfType<OkResult>();
         }
+
+        [Fact]
+        public async Task GetAllReturnsOkObjectWithList()
+        {
+            var areas = new Area[]
+            {
+                new() { X = 1, Y = 1 },
+                new() { X = 1, Y = 2 },
+                new() { X = 2, Y = 1 },
+                new() { X = 2, Y = 2 },
+            };
+
+            _areaRepo.RetrieveAll().Returns(Task.FromResult(areas));
+
+            var actual = await _sut.GetAll();
+
+            await _areaRepo.Received(1).RetrieveAll();
+
+            actual.Should().BeOfType<OkObjectResult>();
+            actual.As<OkObjectResult>().Value.Should().BeOfType<Area[]>();
+            actual.As<OkObjectResult>().Value.As<Area[]>().Should().HaveCount(4);
+        }
     }
 }
