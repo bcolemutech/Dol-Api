@@ -116,54 +116,6 @@ namespace DolApiTest.Controllers
         }
 
         [Fact]
-        public async Task PutMoveUpdatesPositionForNow()
-        {
-            var move = new Position {X = 1, Y = 2, Location = "House", Populace = "Township", Action = Action.Move};
-            var result = await _sut.PutMove("Bob", move);
-
-            await _areaRepo.Received(1).Retrieve(1, 2);
-            await _characterRepo.Received(1).SetMove(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
-            await _characterRepo.Received(1).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"),
-                Arg.Is<IPosition>(i =>
-                    i.Action == Action.Idle && i.X == 1 && i.Y == 2 && i.Location == "House" &&
-                    i.Populace == "Township"));
-
-            result.Should().BeOfType(typeof(AcceptedResult));
-            result.As<AcceptedResult>().Location.Should().MatchRegex(
-                @"https:\/\/bologna\.com\/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}");
-        }
-
-        [Theory]
-        [InlineData(-1, 2, "House", "Township", Action.Move, "Area -1,2 does not exist")]
-        [InlineData(1, -2, "House", "Township", Action.Move, "Area 1,-2 does not exist")]
-        [InlineData(-1, -2, "House", "Township", Action.Move, "Area -1,-2 does not exist")]
-        [InlineData(5, 5, "", "", Action.Move, "Area 5,5 does not exist")]
-        [InlineData(3, 3, "", "", Action.Move, "Area 3,3 is impassable")]
-        public async Task GivenPutToMoveWhenRequestLocationOrAreaDoesntExistThenReturnUnprocessableEntity(int x,
-            int y,
-            string location,
-            string populace,
-            Action action,
-            string message)
-        {
-            _areaRepo.ClearReceivedCalls();
-            _characterRepo.ClearReceivedCalls();
-
-            var move = new Position() {X = x, Y = y, Location = location, Populace = populace, Action = action};
-
-            var result = await _sut.PutMove("Bob", move);
-
-            await _areaRepo.Received(1).Retrieve(x, y);
-            await _characterRepo.Received(0).SetMove(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
-            await _characterRepo.Received(0).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
-
-            result.Should().BeOfType(typeof(UnprocessableEntityObjectResult));
-            result.As<UnprocessableEntityObjectResult>().Value.Should().BeOfType(typeof(string));
-            result.As<UnprocessableEntityObjectResult>().Value.As<string>().Should()
-                .Be($"Position object is not valid. {message}");
-        }
-
-        [Fact]
         public async Task PutPositionUpdatesPosition()
         {
             var position = new Position {X = 1, Y = 2, Location = "House", Populace = "Township", Action = Action.Idle};

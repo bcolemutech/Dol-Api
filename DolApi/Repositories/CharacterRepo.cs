@@ -15,7 +15,6 @@ namespace DolApi.Repositories
         Task<IEnumerable<Character>> RetrieveAll(string user);
         Task<Character> Retrieve(string user, string name);
         Task Remove(string user, string name);
-        Task SetMove(string user, string name, IPosition move);
         Task SetPosition(string user, string name, IPosition position);
     }
 
@@ -61,18 +60,6 @@ namespace DolApi.Repositories
         {
             var docRef = _db.Collection(Players).Document(user).Collection(Characters).Document($"{name.ToLower()}:");
             await docRef.DeleteAsync();
-        }
-
-        public async Task SetMove(string user, string name, IPosition move)
-        {
-            Console.WriteLine($"Setting move for player {user} on character {name}");
-            var docRef = _db.Collection(Players).Document(user).Collection(Characters).Document($"{name.ToLower()}:");
-            var snapshot = await docRef.GetSnapshotAsync();
-            var character = snapshot.ConvertTo<Character>();
-
-            character.Move = move;
-
-            await docRef.SetAsync(character, SetOptions.MergeAll);
         }
 
         public async Task SetPosition(string user, string name, IPosition position)

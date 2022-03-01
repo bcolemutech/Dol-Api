@@ -19,7 +19,6 @@ namespace DolApi.Controllers
         private readonly ICharacterRepo _characterRepo;
         private readonly IAreaRepo _areaRepo;
         private readonly string _userId;
-        private readonly string _encounterEngineUrl;
         private readonly IPosition _startingPosition;
 
         private readonly Action[] allowedPositionActions = {Action.Idle, Action.Rest};
@@ -37,7 +36,6 @@ namespace DolApi.Controllers
             };
             var user = httpContextAccessor.HttpContext?.User;
             _userId = user?.Claims.First(c => c.Type == "user_id").Value;
-            _encounterEngineUrl = configuration["EncounterEngineUrl"];
         }
 
         [HttpPut]
@@ -73,26 +71,6 @@ namespace DolApi.Controllers
             await _characterRepo.Remove(_userId, name);
 
             return new NoContentResult();
-        }
-
-        [HttpPut]
-        [Route("{name}/move")]
-        public async Task<IActionResult> PutMove(string name, [FromBody] Position move)
-        {
-            var (validPosition, actionResult) = await TryValidatePosition(move, true);
-            if (!validPosition) return actionResult;
-
-            await _characterRepo.SetMove(_userId, name, move);
-
-            move.Action = Action.Idle;
-
-            await _characterRepo.SetPosition(_userId, name, move);
-
-            var encounterGuid = Guid.NewGuid();
-
-            var route = new Uri($"{_encounterEngineUrl}/{encounterGuid}", UriKind.Absolute);
-
-            return Accepted(route);
         }
 
         [HttpPut]
