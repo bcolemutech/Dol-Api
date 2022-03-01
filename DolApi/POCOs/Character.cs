@@ -11,8 +11,5 @@
         
         [FirestoreProperty]
         public IPosition Position { get; set; }
-        
-        [FirestoreProperty]
-        public IPosition Move { get; set; }
     }
 }
