@@ -31,7 +31,7 @@ namespace DolApiTest.Controllers
             _characterRepo = Substitute.For<ICharacterRepo>();
             _areaRepo = Substitute.For<IAreaRepo>();
 
-            _characterRepo.Add("qwerty", "Bob", Arg.Any<DolApi.POCOs.Position>())
+            _characterRepo.Add("qwerty", "Bob", Arg.Any<IPosition>())
                 .Returns(info => new Character
                 {
                     Name = info[1].ToString(),
@@ -60,7 +60,7 @@ namespace DolApiTest.Controllers
             
             var result = await _sut.Put("Bob");
 
-            await _characterRepo.Received(1).Add(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<DolApi.POCOs.Position>());
+            await _characterRepo.Received(1).Add(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
 
             result.Should().BeOfType(typeof(CreatedResult));
             result.As<CreatedResult>().Value.Should().BeOfType(typeof(Character));

@@ -4,14 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using dol_sdk.POCOs;
 using Google.Cloud.Firestore;
 using Microsoft.Extensions.Configuration;
 using Character = POCOs.Character;
-using Position = POCOs.Position;
 
 public interface ICharacterRepo
 {
-    Task<Character> Add(string user, string name, Position startPosition);
+    Task<Character> Add(string user, string name, IPosition startPosition);
     Task<IEnumerable<Character>> RetrieveAll(string user);
     Task<Character> Retrieve(string user, string name);
     Task Remove(string user, string name);
@@ -29,7 +29,7 @@ public class CharacterRepo : ICharacterRepo
         _db = FirestoreDb.Create(configuration["ProjectId"]);
     }
 
-    public async Task<Character> Add(string user, string name, Position startPosition)
+    public async Task<Character> Add(string user, string name, IPosition startPosition)
     {
         Console.WriteLine($"Adding character {name} to player {user}");
         var docRef = _db.Collection(Players).Document(user).Collection(Characters).Document($"{name.ToLower()}:");
