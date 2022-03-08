@@ -31,7 +31,7 @@ namespace DolApiTest.Controllers
             _characterRepo = Substitute.For<ICharacterRepo>();
             _areaRepo = Substitute.For<IAreaRepo>();
 
-            _characterRepo.Add("qwerty", "Bob", Arg.Any<IPosition>())
+            _characterRepo.Add("qwerty", "Bob", Arg.Any<DolApi.POCOs.Position>())
                 .Returns(info => new Character
                 {
                     Name = info[1].ToString(),
@@ -60,7 +60,7 @@ namespace DolApiTest.Controllers
             
             var result = await _sut.Put("Bob");
 
-            await _characterRepo.Received(1).Add(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
+            await _characterRepo.Received(1).Add(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<DolApi.POCOs.Position>());
 
             result.Should().BeOfType(typeof(CreatedResult));
             result.As<CreatedResult>().Value.Should().BeOfType(typeof(Character));
@@ -122,7 +122,7 @@ namespace DolApiTest.Controllers
 
             await _areaRepo.Received(1).Retrieve(1, 2);
             await _characterRepo.Received(1).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"),
-                Arg.Is<IPosition>(i =>
+                Arg.Is<Position>(i =>
                     i.Action == Action.Idle && i.X == 1 && i.Y == 2 && i.Location == "House" &&
                     i.Populace == "Township"));
 
@@ -150,7 +150,7 @@ namespace DolApiTest.Controllers
             var result = await _sut.PutPosition("Bob", position);
 
             await _areaRepo.Received(1).Retrieve(x, y);
-            await _characterRepo.Received(0).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
+            await _characterRepo.Received(0).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<Position>());
 
             result.Should().BeOfType(typeof(UnprocessableEntityObjectResult));
             result.As<UnprocessableEntityObjectResult>().Value.Should().BeOfType(typeof(string));
@@ -175,7 +175,7 @@ namespace DolApiTest.Controllers
             var result = await _sut.PutPosition("Bob", position);
 
             await _areaRepo.Received(0).Retrieve(x, y);
-            await _characterRepo.Received(0).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
+            await _characterRepo.Received(0).SetPosition(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<Position>());
 
             result.Should().BeOfType(typeof(UnprocessableEntityObjectResult));
             result.As<UnprocessableEntityObjectResult>().Value.Should().BeOfType(typeof(string));

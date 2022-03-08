@@ -19,7 +19,7 @@ namespace DolApi.Controllers
         private readonly ICharacterRepo _characterRepo;
         private readonly IAreaRepo _areaRepo;
         private readonly string _userId;
-        private readonly IPosition _startingPosition;
+        private readonly DolApi.POCOs.Position _startingPosition;
 
         private readonly Action[] allowedPositionActions = {Action.Idle, Action.Rest};
 
@@ -28,7 +28,7 @@ namespace DolApi.Controllers
         {
             _characterRepo = characterRepo;
             _areaRepo = areaRepo;
-            _startingPosition = new Position
+            _startingPosition = new POCOs.Position
             {
                 X = Convert.ToInt32(configuration["StartPosition:X"]),
                 Y = Convert.ToInt32(configuration["StartPosition:Y"]),
