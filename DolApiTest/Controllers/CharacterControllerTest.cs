@@ -41,7 +41,6 @@ namespace DolApiTest.Controllers
             _areaRepo.Retrieve(3, 3).Returns(new DolApi.POCOs.Area {X = 3, Y = 3, Navigation = Navigation.Impassable});
 
             var config = Substitute.For<IConfiguration>();
-            config["EncounterEngineUrl"].Returns(@"https://bologna.com");
             config["StartPosition:X"].Returns("23");
             config["StartPosition:Y"].Returns("22");
             config["StartPosition:Populace"].Returns("city");
