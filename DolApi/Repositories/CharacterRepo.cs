@@ -33,7 +33,7 @@ namespace DolApi.Repositories
         {
             Console.WriteLine($"Adding character {name} to player {user}");
             var docRef = _db.Collection(Players).Document(user).Collection(Characters).Document($"{name.ToLower()}:");
-            var character = new Character {Name = name};
+            var character = new Character {Name = name, Position = startPosition};
             await docRef.SetAsync(character, SetOptions.MergeAll);
 
             return await Retrieve(user, name);
