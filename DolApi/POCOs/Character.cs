@@ -1,28 +1,40 @@
-﻿namespace DolApi.POCOs
-{
-    using Google.Cloud.Firestore;
-    using dol_sdk.POCOs;
+﻿namespace DolApi.POCOs;
+
+using System;
+using System.Collections.Generic;
+using Google.Cloud.Firestore;
+using dol_sdk.POCOs;
     
-    [FirestoreData]
-    public class Character: ICharacter 
-    {
-        [FirestoreProperty]
-        public string Name { get; set; }
+[FirestoreData]
+public class Character: ICharacter 
+{
+    [FirestoreProperty]
+    public string Name { get; set; }
         
-        [FirestoreProperty(ConverterType = typeof(PositionConverter))]
-        public IPosition Position { get; set; }
+    [FirestoreProperty(ConverterType = typeof(PositionConverter))]
+    public IPosition Position { get; set; }
+}
+
+public class PositionConverter : IFirestoreConverter<IPosition>
+{
+    public object ToFirestore(IPosition value)
+    {
+        return new Position(value);
     }
 
-    public class PositionConverter : IFirestoreConverter<IPosition>
+    public IPosition FromFirestore(object value)
     {
-        public object ToFirestore(IPosition value)
+        if (value is IDictionary<string, object> map)
         {
-            return new Position(value);
+            return new Position
+            {
+                Action = Enum.Parse<dol_sdk.Enums.Action>((string)map["Action"]),
+                Location = (string)map["Location"],
+                Populace = (string)map["Populace"],
+                X = (int)map["X"],
+                Y = (int)map["Y"]
+            };
         }
-
-        public IPosition FromFirestore(object value)
-        {
-            return value as Position;
-        }
+        throw new ArgumentException($"Unexpected data: {value.GetType()}");
     }
 }
