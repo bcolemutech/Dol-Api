@@ -29,11 +29,11 @@ public class PositionConverter : IFirestoreConverter<IPosition>
         {
             return new Position
             {
-                Action = (Action)(long)map["Action"],
+                Action = (Action)Convert.ToInt32(map["Action"]),
                 Location = (string)map["Location"],
                 Populace = (string)map["Populace"],
-                X = (int)map["X"],
-                Y = (int)map["Y"]
+                X = Convert.ToInt32(map["X"]),
+                Y = Convert.ToInt32(map["Y"])
             };
         }
         throw new ArgumentException($"Unexpected data: {value.GetType()}");
