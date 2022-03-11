@@ -14,7 +14,6 @@ using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using Xunit;
 using Character = DolApi.POCOs.Character;
-using System;
 using Action = dol_sdk.Enums.Action;
 
 public class CharacterControllerTest

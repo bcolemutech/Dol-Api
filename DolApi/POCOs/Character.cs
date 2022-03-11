@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Google.Cloud.Firestore;
 using dol_sdk.POCOs;
+using Action = dol_sdk.Enums.Action;
     
 [FirestoreData]
 public class Character: ICharacter 
@@ -28,7 +29,7 @@ public class PositionConverter : IFirestoreConverter<IPosition>
         {
             return new Position
             {
-                Action = (dol_sdk.Enums.Action)(long)map["Action"],
+                Action = (Action)(long)map["Action"],
                 Location = (string)map["Location"],
                 Populace = (string)map["Populace"],
                 X = (int)map["X"],
