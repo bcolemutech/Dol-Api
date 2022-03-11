@@ -17,6 +17,10 @@ public class Position : IPosition
         Y = value.Y;
     }
 
+    public Position()
+    {
+    }
+
     [FirestoreProperty]
     public int X { get; set; }
 
