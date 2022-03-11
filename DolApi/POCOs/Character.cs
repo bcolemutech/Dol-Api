@@ -28,7 +28,7 @@ public class PositionConverter : IFirestoreConverter<IPosition>
         {
             return new Position
             {
-                Action = (dol_sdk.Enums.Action)map["Action"],
+                Action = (dol_sdk.Enums.Action)(int)map["Action"],
                 Location = (string)map["Location"],
                 Populace = (string)map["Populace"],
                 X = (int)map["X"],
