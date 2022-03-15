@@ -42,7 +42,7 @@ namespace DolApi.Controllers
         [Route("{name}")]
         public async Task<IActionResult> Put(string name)
         {
-            var character = await _characterRepo.Add(_userId, name, _startingPosition);
+            var character = await _characterRepo.Add(_userId, name, _startingPosition as Position);
 
             return new CreatedResult($"/Character/{character.Name}", character);
         }

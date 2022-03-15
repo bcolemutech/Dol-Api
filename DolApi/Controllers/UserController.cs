@@ -1,67 +1,66 @@
-﻿using System;
+﻿namespace DolApi.Controllers;
+
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DolApi.POCOs;
 using DolApi.Repositories;
 using DolApi.Services;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using dol_sdk.POCOs;
 
-namespace DolApi.Controllers
+[Authorize(Policy = "Admin")]
+[Route("[controller]")]
+public class UserController
 {
-    [Authorize(Policy = "Admin")]
-    [Route("[controller]")]
-    public class UserController
+    private readonly IAdminService _admin;
+    private readonly IPlayerRepo _playerRepo;
+
+    public UserController(IAdminService adminService, IPlayerRepo playerRepo)
     {
-        private readonly IAdminService _admin;
-        private readonly IPlayerRepo _playerRepo;
+        _admin = adminService;
+        _playerRepo = playerRepo;
+    }
 
-        public UserController(IAdminService adminService, IPlayerRepo playerRepo)
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] PlayerRequest playerRequest)
+    {
+        Console.WriteLine($"Player email = {playerRequest.Email}");
+        var userId = "";
+        bool newExists;
+        try
         {
-            _admin = adminService;
-            _playerRepo = playerRepo;
+            userId = _admin.GetUserByEmailAsync(playerRequest.Email);
+            newExists = false;
+            Console.WriteLine("Player found");
+        }
+        catch (Exception)
+        {
+            newExists = true;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] PlayerRequest playerRequest)
+        if (newExists)
         {
-            Console.WriteLine($"Player email = {playerRequest.Email}");
-            var userId = "";
-            bool newExists;
-            try
+            Console.WriteLine("Creating new player");
+            var user = new UserRecordArgs
             {
-                userId = _admin.GetUserByEmailAsync(playerRequest.Email);
-                newExists = false;
-                Console.WriteLine("Player found");
-            }
-            catch (Exception)
-            {
-                newExists = true;
-            }
-
-            if (newExists)
-            {
-                Console.WriteLine("Creating new player");
-                var user = new UserRecordArgs
-                {
-                    Email = playerRequest.Email,
-                    Password = Guid.NewGuid().ToString(),
-                    Disabled = false
-                };
-                userId = _admin.CreateUserAsync(user);
-                await _playerRepo.Add(userId);
-                Console.WriteLine("New player created");
-            }
-
-            Console.WriteLine($"Setting authority to {playerRequest.Authority}");
-            var claims = new Dictionary<string, object>
-            {
-                {"Authority", playerRequest.Authority},
+                Email = playerRequest.Email,
+                Password = Guid.NewGuid().ToString(),
+                Disabled = false
             };
-            await _admin.SetCustomUserClaimsAsync(userId, claims);
-
-            return new OkResult();
+            userId = _admin.CreateUserAsync(user);
+            await _playerRepo.Add(userId);
+            Console.WriteLine("New player created");
         }
+
+        Console.WriteLine($"Setting authority to {playerRequest.Authority}");
+        var claims = new Dictionary<string, object>
+        {
+            { "Authority", playerRequest.Authority },
+        };
+        await _admin.SetCustomUserClaimsAsync(userId, claims);
+
+        return new OkResult();
     }
 }
