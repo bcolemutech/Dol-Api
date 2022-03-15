@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using Xunit;
-using Character = DolApi.POCOs.Character;
 using Action = dol_sdk.Enums.Action;
 
 public class CharacterControllerTest
@@ -31,14 +30,14 @@ public class CharacterControllerTest
         _characterRepo = Substitute.For<ICharacterRepo>();
         _areaRepo = Substitute.For<IAreaRepo>();
 
-        _characterRepo.Add("qwerty", "Bob", Arg.Any<IPosition>())
+        _characterRepo.Add("qwerty", "Bob", Arg.Any<Position>())
             .Returns(info => new Character
             {
                 Name = info[1].ToString(),
-                Position = (IPosition)info[2]
+                Position = (Position)info[2]
             });
-        _areaRepo.Retrieve(1, 2).Returns(new DolApi.POCOs.Area { X = 1, Y = 2, Navigation = Navigation.Roads });
-        _areaRepo.Retrieve(3, 3).Returns(new DolApi.POCOs.Area { X = 3, Y = 3, Navigation = Navigation.Impassable });
+        _areaRepo.Retrieve(1, 2).Returns(new Area { X = 1, Y = 2, Navigation = Navigation.Roads });
+        _areaRepo.Retrieve(3, 3).Returns(new Area { X = 3, Y = 3, Navigation = Navigation.Impassable });
 
         var config = Substitute.For<IConfiguration>();
         config["StartPosition:X"].Returns("23");
@@ -60,7 +59,7 @@ public class CharacterControllerTest
 
         var result = await _sut.Put("Bob");
 
-        await _characterRepo.Received(1).Add(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<IPosition>());
+        await _characterRepo.Received(1).Add(Arg.Is("qwerty"), Arg.Is("Bob"), Arg.Any<Position>());
 
         result.Should().BeOfType(typeof(CreatedResult));
         result.As<CreatedResult>().Value.Should().BeOfType(typeof(Character));
