@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using dol_sdk.POCOs;
     using DolApi.Controllers;
-    using DolApi.POCOs;
     using DolApi.Repositories;
     using FluentAssertions;
     using Microsoft.AspNetCore.Mvc;

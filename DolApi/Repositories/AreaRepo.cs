@@ -1,52 +1,51 @@
-﻿namespace DolApi.Repositories
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Google.Cloud.Firestore;
-    using Microsoft.Extensions.Configuration;
-    using POCOs;
+﻿namespace DolApi.Repositories;
 
-    public interface IAreaRepo
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Google.Cloud.Firestore;
+using Microsoft.Extensions.Configuration;
+using dol_sdk.POCOs;
+
+public interface IAreaRepo
+{
+    Task<Area> Retrieve(int x, int y);
+    Task Replace(int x, int y, Area area);
+    Task<IEnumerable<Area>> RetrieveAll();
+}
+
+public class AreaRepo : IAreaRepo
+{
+    private readonly FirestoreDb _db;
+
+    public AreaRepo(IConfiguration configuration)
     {
-        Task<Area> Retrieve(int x, int y);
-        Task Replace(int x, int y, Area area);
-        Task<IEnumerable<Area>> RetrieveAll();
+        _db = FirestoreDb.Create(configuration["ProjectId"]);
     }
 
-    public class AreaRepo : IAreaRepo
+    public async Task<Area> Retrieve(int x, int y)
     {
-        private readonly FirestoreDb _db;
+        var docRef = _db.Collection("area").Document($"{x}-{y}");
 
-        public AreaRepo(IConfiguration configuration)
-        {
-            _db = FirestoreDb.Create(configuration["ProjectId"]);
-        }
+        var snapshot = await docRef.GetSnapshotAsync();
 
-        public async Task<Area> Retrieve(int x, int y)
-        {
-            var docRef = _db.Collection("area").Document($"{x}-{y}");
+        return snapshot.Exists ? snapshot.ConvertTo<Area>() : null;
+    }
 
-            var snapshot = await docRef.GetSnapshotAsync();
+    public async Task Replace(int x, int y, Area area)
+    {
+        Console.WriteLine($"Add/replace area {x}-{y}");
+        var docRef = _db.Collection("area").Document($"{x}-{y}");
+        await docRef.SetAsync(area, SetOptions.MergeAll);
+    }
 
-            return snapshot.Exists ? snapshot.ConvertTo<Area>() : null;
-        }
+    public async Task<IEnumerable<Area>> RetrieveAll()
+    {
+        var query = _db.Collection("area");
 
-        public async Task Replace(int x, int y, Area area)
-        {
-            Console.WriteLine($"Add/replace area {x}-{y}");
-            var docRef = _db.Collection("area").Document($"{x}-{y}");
-            await docRef.SetAsync(area, SetOptions.MergeAll);
-        }
+        var snapshot = await query.GetSnapshotAsync();
 
-        public async Task<IEnumerable<Area>> RetrieveAll()
-        {
-            var query = _db.Collection("area");
-
-            var snapshot = await query.GetSnapshotAsync();
-
-            return snapshot.Documents.Select(document => document.ConvertTo<Area>());
-        }
+        return snapshot.Documents.Select(document => document.ConvertTo<Area>());
     }
 }
