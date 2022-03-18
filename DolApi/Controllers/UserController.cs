@@ -50,7 +50,7 @@ public class UserController
                 Disabled = false
             };
             userId = _admin.CreateUserAsync(user);
-            await _playerRepo.Add(userId);
+            await _playerRepo.Add(userId, playerRequest);
             Console.WriteLine("New player created");
         }
 
