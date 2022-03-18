@@ -41,7 +41,7 @@ public class UserControllerTest
         _adminService.Received(1).CreateUserAsync(Arg.Is<UserRecordArgs>(args =>
             args.Email == "test@test.com" && !string.IsNullOrEmpty(args.Password)));
 
-        _playerRepo.Received(1).Add("1234");
+        _playerRepo.Received(1).Add("1234", request);
 
         _adminService.Received(1).SetCustomUserClaimsAsync(Arg.Is("1234"),
             Arg.Is<Dictionary<string, object>>(objects => (int)objects["Authority"] == 0));
