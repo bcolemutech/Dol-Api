@@ -2,6 +2,8 @@ namespace DolApiTest.Controllers;
 
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using dol_sdk.Enums;
 using DolApi.Controllers;
 using DolApi.Repositories;
@@ -13,6 +15,10 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Xunit;
 using dol_sdk.POCOs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.JsonPatch.Operations;
+using Newtonsoft.Json.Serialization;
 
 public class UserControllerTest
 {
@@ -22,9 +28,13 @@ public class UserControllerTest
 
     public UserControllerTest()
     {
+        var accessor = Substitute.For<IHttpContextAccessor>();
+
+        accessor.HttpContext?.User.Claims.Returns(new[] { new Claim("user_id", "1234") });
+        
         _playerRepo = Substitute.For<IPlayerRepo>();
         _adminService = Substitute.For<IAdminService>();
-        _sut = new UserController(_adminService, _playerRepo);
+        _sut = new UserController(accessor, _adminService, _playerRepo);
     }
 
     [Fact]
@@ -65,5 +75,60 @@ public class UserControllerTest
             Arg.Is<Dictionary<string, object>>(objects => (int)objects["Authority"] == 0));
 
         actual.Result.Should().BeOfType<OkResult>();
+    }
+
+    [Fact]
+    public async Task GivenUserDoesNotExistWhenPatchingThenReturnNotFound()
+    {
+        var doc = new JsonPatchDocument<User>(new List<Operation<User>>
+        {
+            new("replace", nameof(IUser.CurrentCharacter), "bob", "charlie")
+        }, new DefaultContractResolver());
+
+        _playerRepo.Get("1234").Returns(Task.FromResult<User>(null));
+        
+        var actual = await _sut.Patch(doc);
+
+        await _playerRepo.Received(1).Get(Arg.Is("1234"));
+        await _playerRepo.Received(0).Update(Arg.Any<string>(), Arg.Any<User>());
+
+        actual.Should().BeOfType<NotFoundResult>();
+    }
+    
+    [Fact]
+    public async Task GivenUserDoesExistWhenPatchingThenUpdatePlayer()
+    {
+        var doc = new JsonPatchDocument<User>(new List<Operation<User>>
+        {
+            new("replace", nameof(IUser.CurrentCharacter), "bob", "charlie")
+        }, new DefaultContractResolver());
+
+        var baseUser = new User
+        {
+            Authority = Authority.Player,
+            Email = "test@test.com",
+            CurrentCharacter = "bob",
+            SessionId = "54321",
+            UserId = "1234"
+        };
+        
+        object receivedUser = null;
+        
+        _playerRepo.Get("1234").Returns(Task.FromResult(baseUser));
+        _playerRepo.When(x => x.Update(Arg.Any<string>(), Arg.Any<User>())).Do(y => receivedUser = y.Args()[1]);
+        
+        
+        var actionResult = await _sut.Patch(doc);
+
+        await _playerRepo.Received(1).Get(Arg.Is("1234"));
+        await _playerRepo.Received(1).Update(Arg.Is("1234"), Arg.Any<User>());
+
+        actionResult.Should().BeOfType<OkResult>();
+
+        receivedUser.Should().NotBeNull();
+        receivedUser.Should().BeOfType<User>();
+        receivedUser.As<User>().UserId.Should().Be("1234");
+        receivedUser.As<User>().SessionId.Should().BeNullOrEmpty();
+        receivedUser.As<User>().CurrentCharacter.Should().Be("charlie");
     }
 }
