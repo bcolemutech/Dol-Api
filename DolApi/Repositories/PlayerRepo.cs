@@ -9,6 +9,8 @@ using dol_sdk.POCOs;
 public interface IPlayerRepo
 {
     Task Add(string userId, PlayerRequest playerRequest);
+    Task Update(string userId, User user);
+    Task<User> Get(string userId);
 }
 
 public class PlayerRepo : IPlayerRepo
@@ -45,5 +47,21 @@ public class PlayerRepo : IPlayerRepo
         var result = await docRef.SetAsync(user, SetOptions.MergeAll);
 
         Console.WriteLine($"New Player doc added at {result.UpdateTime}");
+    }
+
+    public async Task Update(string userId, User user)
+    {
+        var docRef = _db.Collection(Players).Document(userId);
+        var result = await docRef.SetAsync(user, SetOptions.MergeAll);
+        
+        Console.WriteLine($"User {userId} updated at {result.UpdateTime}");
+    }
+
+    public async Task<User> Get(string userId)
+    {
+        var docRef = _db.Collection(Players).Document(userId);
+        var snapshot = await docRef.GetSnapshotAsync();
+
+        return snapshot.Exists ? snapshot.ConvertTo<User>() : null;
     }
 }
