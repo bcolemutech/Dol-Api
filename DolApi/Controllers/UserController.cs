@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DolApi.Repositories;
 using DolApi.Services;
@@ -9,20 +10,27 @@ using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using dol_sdk.POCOs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 
-[Authorize(Policy = "Admin")]
+[ApiController]
 [Route("[controller]")]
-public class UserController
+public class UserController : ControllerBase
 {
     private readonly IAdminService _admin;
     private readonly IPlayerRepo _playerRepo;
+    private readonly string _userId;
 
-    public UserController(IAdminService adminService, IPlayerRepo playerRepo)
+    public UserController(IHttpContextAccessor httpContextAccessor, IAdminService adminService, IPlayerRepo playerRepo)
     {
         _admin = adminService;
         _playerRepo = playerRepo;
+
+        var claims = httpContextAccessor.HttpContext?.User.Claims;
+        _userId = claims!.First(c => c.Type == "user_id").Value;
     }
 
+    [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] PlayerRequest playerRequest)
     {
@@ -61,6 +69,34 @@ public class UserController
         };
         await _admin.SetCustomUserClaimsAsync(userId, claims);
 
-        return new OkResult();
+        return Ok();
+    }
+
+    [Authorize(Policy = "Player")]
+    [HttpPatch]
+    public async Task<IActionResult> Patch(JsonPatchDocument<User> doc)
+    {
+        if (doc.Operations.Any(x => x.path is not nameof(IUser.CurrentCharacter)) ||
+            doc.Operations.Any(x => x.op is not ("replace" or "test")))
+        {
+            return UnprocessableEntity();
+        }
+
+        var user = await _playerRepo.Get(_userId);
+
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        var resetSession = doc.Operations.Any(x => x.path == nameof(IUser.CurrentCharacter));
+
+        doc.ApplyTo(user);
+
+        user.SessionId = resetSession ? string.Empty : user.SessionId;
+
+        await _playerRepo.Update(_userId, user);
+
+        return Ok();
     }
 }
