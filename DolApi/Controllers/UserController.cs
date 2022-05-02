@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using dol_sdk.Enums;
 using DolApi.Repositories;
 using DolApi.Services;
 using FirebaseAdmin.Auth;
@@ -21,7 +20,6 @@ public class UserController : ControllerBase
     private readonly IAdminService _admin;
     private readonly IPlayerRepo _playerRepo;
     private readonly string _userId;
-    private readonly Authority _authority;
 
     public UserController(IHttpContextAccessor httpContextAccessor, IAdminService adminService, IPlayerRepo playerRepo)
     {
@@ -30,9 +28,6 @@ public class UserController : ControllerBase
 
         var claims = httpContextAccessor.HttpContext?.User.Claims;
         _userId = claims!.First(c => c.Type == "user_id").Value;
-        var authString = claims.First(c => c.Type == "Authority").Value;
-        var authInt = Convert.ToInt32(authString);
-        _authority = (Authority)authInt;
     }
 
     [Authorize(Policy = "Admin")]
