@@ -30,8 +30,8 @@ public class UserControllerTest
     {
         var accessor = Substitute.For<IHttpContextAccessor>();
 
-        accessor.HttpContext?.User.Claims.Returns(new[] { new Claim("user_id", "1234") });
-        
+        accessor.HttpContext?.User.Claims.Returns(new[] { new Claim("user_id", "1234"), new Claim("Authority", "2") });
+
         _playerRepo = Substitute.For<IPlayerRepo>();
         _adminService = Substitute.For<IAdminService>();
         _sut = new UserController(accessor, _adminService, _playerRepo);
@@ -77,6 +77,29 @@ public class UserControllerTest
         actual.Result.Should().BeOfType<OkResult>();
     }
 
+    [Theory]
+    [InlineData("add", false)]
+    [InlineData("remove", false)]
+    [InlineData("replace", true)]
+    [InlineData("move", false)]
+    [InlineData("copy", false)]
+    [InlineData("test", true)]
+    public async Task GivenAnOperationWhenPatchReturnAppropriateResponse(string operation, bool allow)
+    {
+        var doc = new JsonPatchDocument<User>(new List<Operation<User>>
+        {
+            new(operation, nameof(IUser.CurrentCharacter), "bob", "bob")
+        }, new DefaultContractResolver());
+
+        _playerRepo.Get("1234").Returns(Task.FromResult(new User{CurrentCharacter = "bob"}));
+
+        var actual = await _sut.Patch(doc);
+
+        var result = allow ? typeof(OkResult) : typeof(UnprocessableEntityResult);
+        
+        actual.Should().BeOfType(result);
+    }
+
     [Fact]
     public async Task GivenUserDoesNotExistWhenPatchingThenReturnNotFound()
     {
@@ -86,7 +109,7 @@ public class UserControllerTest
         }, new DefaultContractResolver());
 
         _playerRepo.Get("1234").Returns(Task.FromResult<User>(null));
-        
+
         var actual = await _sut.Patch(doc);
 
         await _playerRepo.Received(1).Get(Arg.Is("1234"));
@@ -94,7 +117,7 @@ public class UserControllerTest
 
         actual.Should().BeOfType<NotFoundResult>();
     }
-    
+
     [Fact]
     public async Task GivenUserDoesExistWhenPatchingThenUpdatePlayer()
     {
@@ -111,13 +134,13 @@ public class UserControllerTest
             SessionId = "54321",
             UserId = "1234"
         };
-        
+
         object receivedUser = null;
-        
+
         _playerRepo.Get("1234").Returns(Task.FromResult(baseUser));
         _playerRepo.When(x => x.Update(Arg.Any<string>(), Arg.Any<User>())).Do(y => receivedUser = y.Args()[1]);
-        
-        
+
+
         var actionResult = await _sut.Patch(doc);
 
         await _playerRepo.Received(1).Get(Arg.Is("1234"));
@@ -130,5 +153,33 @@ public class UserControllerTest
         receivedUser.As<User>().UserId.Should().Be("1234");
         receivedUser.As<User>().SessionId.Should().BeNullOrEmpty();
         receivedUser.As<User>().CurrentCharacter.Should().Be("charlie");
+    }
+
+    [Fact]
+    public async Task GivenUserWithPlayerStatusWhenPatchingSessionIdThenDisallowAndReturnForbidden()
+    {
+        var doc = new JsonPatchDocument<User>(new List<Operation<User>>
+        {
+            new("replace", nameof(IUser.SessionId), "54321", "78945")
+        }, new DefaultContractResolver());
+
+        var baseUser = new User
+        {
+            Authority = Authority.Player,
+            Email = "test@test.com",
+            CurrentCharacter = "bob",
+            SessionId = "54321",
+            UserId = "1234"
+        };
+
+        _playerRepo.Get("1234").Returns(Task.FromResult(baseUser));
+
+
+        var actionResult = await _sut.Patch(doc);
+
+        await _playerRepo.Received(0).Get(Arg.Any<string>());
+        await _playerRepo.Received(0).Update(Arg.Any<string>(), Arg.Any<User>());
+
+        actionResult.Should().BeOfType<UnprocessableEntityResult>();
     }
 }
