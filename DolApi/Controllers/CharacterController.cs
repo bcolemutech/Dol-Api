@@ -16,6 +16,7 @@ namespace DolApi.Controllers
     [Route("[controller]")]
     public class CharacterController : ControllerBase
     {
+        private readonly IPlayerRepo _playerRepo;
         private readonly ICharacterRepo _characterRepo;
         private readonly IAreaRepo _areaRepo;
         private readonly string _userId;
@@ -23,9 +24,11 @@ namespace DolApi.Controllers
 
         private readonly Action[] allowedPositionActions = {Action.Idle, Action.Rest};
 
-        public CharacterController(IHttpContextAccessor httpContextAccessor, ICharacterRepo characterRepo,
+        public CharacterController(IHttpContextAccessor httpContextAccessor, IPlayerRepo playerRepo,
+            ICharacterRepo characterRepo,
             IAreaRepo areaRepo, IConfiguration configuration)
         {
+            _playerRepo = playerRepo;
             _characterRepo = characterRepo;
             _areaRepo = areaRepo;
             _startingPosition = new Position
@@ -61,16 +64,25 @@ namespace DolApi.Controllers
         {
             var character = await _characterRepo.Retrieve(_userId, name);
 
-            return new OkObjectResult(character);
+            return Ok(character);
         }
 
         [HttpDelete]
         [Route("{name}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Delete(string name)
         {
+            var player = await _playerRepo.Get(_userId);
+
+            if (player.CurrentCharacter == name)
+            {
+                return Conflict();
+            }
+            
             await _characterRepo.Remove(_userId, name);
 
-            return new NoContentResult();
+            return NoContent();
         }
 
         [HttpPut]

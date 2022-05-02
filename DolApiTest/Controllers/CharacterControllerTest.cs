@@ -20,12 +20,15 @@ public class CharacterControllerTest
     private readonly CharacterController _sut;
     private readonly ICharacterRepo _characterRepo;
     private readonly IAreaRepo _areaRepo;
+    private readonly IPlayerRepo _playerRepo;
 
     public CharacterControllerTest()
     {
         var accessor = Substitute.For<IHttpContextAccessor>();
 
         accessor.HttpContext?.User.Claims.Returns(new[] { new Claim("user_id", "qwerty") });
+
+        _playerRepo = Substitute.For<IPlayerRepo>();
 
         _characterRepo = Substitute.For<ICharacterRepo>();
         _areaRepo = Substitute.For<IAreaRepo>();
@@ -44,7 +47,7 @@ public class CharacterControllerTest
         config["StartPosition:Y"].Returns("22");
         config["StartPosition:Populace"].Returns("city");
 
-        _sut = new CharacterController(accessor, _characterRepo, _areaRepo, config);
+        _sut = new CharacterController(accessor, _playerRepo, _characterRepo, _areaRepo, config);
     }
 
     [Fact]
@@ -106,11 +109,25 @@ public class CharacterControllerTest
     [Fact]
     public async Task DeleteRemovesGivenCharacter()
     {
+        _playerRepo.Get("qwerty").Returns(Task.FromResult(new User{CurrentCharacter = "Charlie"}));
+        
         var result = await _sut.Delete("Bob");
 
         await _characterRepo.Received(1).Remove(Arg.Is("qwerty"), Arg.Is("Bob"));
 
         result.Should().BeOfType(typeof(NoContentResult));
+    }
+
+    [Fact]
+    public async Task GivenPlayersCurrentCharacterIsSetWhenDeletingThatCharacterThenReturnConflict()
+    {
+        _playerRepo.Get("qwerty").Returns(Task.FromResult(new User{CurrentCharacter = "Bob"}));
+        
+        var result = await _sut.Delete("Bob");
+
+        await _characterRepo.Received(0).Remove(Arg.Any<string>(), Arg.Any<string>());
+
+        result.Should().BeOfType(typeof(ConflictResult));
     }
 
     [Fact]
